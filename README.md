@@ -81,7 +81,7 @@ ros2 launch robot_navigation navigation_server.launch.py
 
 ### 測試兩個workspace通訊
 ```
-ros2 action send_goal /navigate_to_named_pose robot_interfaces/action/NavigateToNamedPose "{target_name: 'stage1_entry', timeout_sec: 20.0}" --feedback
+ros2 action send_goal /navigate_to_named_pose robot_interfaces/action/NavigateToNamedPose "{target_name: 'stage1_entry', timeout_sec: 60.0}" --feedback
 ```
 ### Terminal 補充 — 鍵盤開車
 ```bash
