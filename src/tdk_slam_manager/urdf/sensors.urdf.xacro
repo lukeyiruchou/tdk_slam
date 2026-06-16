@@ -46,7 +46,7 @@
     <origin xyz="0 0 0.10" rpy="0 0 0"/>
   </joint>
 
-  <xacro:macro name="wheel" params="prefix side">
+  <xacro:macro name="mecanum_wheel" params="prefix x y">
     <link name="${prefix}_wheel">
       <visual>
         <geometry><cylinder radius="0.05" length="0.04"/></geometry>
@@ -61,48 +61,23 @@
     <joint name="${prefix}_wheel_joint" type="continuous">
       <parent link="base_link"/>
       <child link="${prefix}_wheel"/>
-      <origin xyz="0 ${side * 0.22} -0.05" rpy="-1.5708 0 0"/>
+      <origin xyz="${x} ${y} -0.05" rpy="-1.5708 0 0"/>
       <axis xyz="0 0 1"/>
     </joint>
 
     <gazebo reference="${prefix}_wheel">
-      <mu1>1</mu1>
-      <mu2>1</mu2>
+      <mu1>1.0</mu1>
+      <mu2>0.0</mu2>
       <kp>100000</kp>
       <kd>1000</kd>
       <material>Gazebo/Black</material>
     </gazebo>
   </xacro:macro>
 
-  <xacro:wheel prefix="left" side="1"/>
-  <xacro:wheel prefix="right" side="-1"/>
-
-  <link name="caster_wheel">
-    <visual>
-      <geometry><sphere radius="0.05"/></geometry>
-      <material name="black"/>
-    </visual>
-    <collision>
-      <geometry><sphere radius="0.05"/></geometry>
-    </collision>
-    <inertial>
-      <mass value="0.1"/>
-      <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>
-    </inertial>
-  </link>
-
-  <joint name="caster_joint" type="fixed">
-    <parent link="base_link"/>
-    <child link="caster_wheel"/> <origin xyz="0.15 0 -0.05" rpy="0 0 0"/>
-  </joint>
-
-  <gazebo reference="caster_wheel">
-    <mu1>0.0001</mu1>
-    <mu2>0.0001</mu2>
-    <kp>100000</kp>
-    <kd>1000</kd>
-    <material>Gazebo/Black</material>
-  </gazebo>
+  <xacro:mecanum_wheel prefix="fl" x=" 0.15" y=" 0.22"/>
+  <xacro:mecanum_wheel prefix="fr" x=" 0.15" y="-0.22"/>
+  <xacro:mecanum_wheel prefix="rl" x="-0.15" y=" 0.22"/>
+  <xacro:mecanum_wheel prefix="rr" x="-0.15" y="-0.22"/>
 
   <xacro:macro name="laser" params="prefix config_name">
     <link name="laser_${prefix}">
@@ -143,23 +118,16 @@
   <xacro:laser prefix="rear" config_name="rear_lidar"/>
 
   <gazebo>
-    <plugin name="diff_drive" filename="libgazebo_ros_diff_drive.so">
+    <plugin name="mecanum_drive" filename="libgazebo_ros_planar_move.so">
       <ros>
         <namespace>/</namespace>
         <remapping>cmd_vel:=cmd_vel</remapping>
         <remapping>odom:=odom</remapping>
       </ros>
-      <left_joint>left_wheel_joint</left_joint>
-      <right_joint>right_wheel_joint</right_joint>
-      <wheel_separation>0.44</wheel_separation>
-      <wheel_diameter>0.1</wheel_diameter>
       <publish_odom>true</publish_odom>
       <publish_odom_tf>true</publish_odom_tf>
-      <publish_wheel_tf>true</publish_wheel_tf>
       <odometry_frame>odom</odometry_frame>
       <robot_base_frame>base_footprint</robot_base_frame>
-      <max_wheel_acceleration>1.0</max_wheel_acceleration>
-      <max_wheel_torque>20</max_wheel_torque>
     </plugin>
   </gazebo>
 
