@@ -1,14 +1,14 @@
 global_costmap:
-  global_costmap:
-    ros__parameters:
-      update_frequency: 1.0
-      publish_frequency: 1.0
-      global_frame: map
-      robot_base_frame: base_footprint
-      use_sim_time: True
-      robot_radius: 0.25
-      plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
-      inflation_layer:
-        plugin: "nav2_costmap_2d::InflationLayer"
-        inflation_radius: 0.3
-        cost_scaling_factor: 3.0
+    global_costmap:
+      ros__parameters:
+        update_frequency: 1.0
+        publish_frequency: 1.0
+        global_frame: map
+        robot_base_frame: base_footprint
+        use_sim_time: True
+        robot_radius: 0.25
+        plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
+        inflation_layer:
+          plugin: "nav2_costmap_2d::InflationLayer"
+          inflation_radius: 0.8       # [修改] 放大膨脹半徑，讓代價梯度能覆蓋大半個賽道
+          cost_scaling_factor: 1.5    # [修改] 數值調小，讓梯度變平滑，逼迫全域路徑遠離內角，走在賽道中央

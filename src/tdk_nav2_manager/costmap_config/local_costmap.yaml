@@ -1,16 +1,17 @@
 local_costmap:
-  local_costmap:
-    ros__parameters:
-      update_frequency: 5.0
-      publish_frequency: 2.0
-      global_frame: odom
-      robot_base_frame: base_footprint
-      use_sim_time: True
-      rolling_window: true
-      width: 3
-      height: 3
-      robot_radius: 0.25
-      plugins: ["obstacle_layer", "inflation_layer"]
-      inflation_layer:
-        plugin: "nav2_costmap_2d::InflationLayer"
-        inflation_radius: 0.25
+    local_costmap:
+      ros__parameters:
+        update_frequency: 5.0
+        publish_frequency: 2.0
+        global_frame: odom
+        robot_base_frame: base_footprint
+        use_sim_time: True
+        rolling_window: true
+        width: 3
+        height: 3
+        robot_radius: 0.25
+        plugins: ["obstacle_layer", "inflation_layer"]
+        inflation_layer:
+          plugin: "nav2_costmap_2d::InflationLayer"
+          inflation_radius: 0.5       # [修改] 必須大於 robot_radius (0.25)，給予局部規劃器緩衝空間
+          cost_scaling_factor: 3.0    # [新增] 加入局部的成本下降係數，避免瞬間碰到致命障礙物
