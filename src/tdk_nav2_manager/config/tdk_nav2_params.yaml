@@ -63,7 +63,6 @@ controller_server:
     use_sim_time: True
     controller_frequency: 20.0
 
-    # 小於這些速度會被視為 0。保持很小，避免低速靠牆修正被吃掉。
     min_x_velocity_threshold: 0.001
     min_y_velocity_threshold: 0.001
     min_theta_velocity_threshold: 0.001
@@ -74,55 +73,48 @@ controller_server:
 
     progress_checker:
       plugin: "nav2_controller::SimpleProgressChecker"
-      # 牆邊如果 8 秒內連 5 cm 都沒動，就判定沒有進展，讓 BT 進 recovery。
       required_movement_radius: 0.05
       movement_time_allowance: 8.0
 
     general_goal_checker:
       plugin: "nav2_controller::SimpleGoalChecker"
-      # 避免最後在牆邊為了很小的誤差反覆卡住。
-      xy_goal_tolerance: 0.15
-      yaw_goal_tolerance: 0.30
+      xy_goal_tolerance: 0.05   # 從 0.15 降至 0.05 (5公分)，要求精確停靠
+      yaw_goal_tolerance: 0.10  # 從 0.30 降至 0.10 (~5.7度)，確保最後車頭是正的
       stateful: True
 
     FollowPath:
       plugin: "nav2_mppi_controller::MPPIController"
       motion_model: "Omni"
 
-      # 預測時間 = time_steps * model_dt = 48 * 0.05 = 2.4 s。
-      # 比原本 2.8 s 短一點，降低牆邊長期預測造成的高 cost。
-      time_steps: 48
+      time_steps: 32  
       model_dt: 0.05
       batch_size: 2000
 
-      # 採樣標準差略降，降低牆邊速度抖動。
-      vx_std: 0.18
-      vy_std: 0.18
-      wz_std: 0.35
+      # 【修改 2：調整採樣權重，鼓勵橫移、壓抑旋轉】
+      vx_std: 0.30  # 提高 X 平移採樣
+      vy_std: 0.30  # 提高 Y 平移採樣 (讓橫移更大膽)
+      wz_std: 0.05  # 大幅降低旋轉採樣，避免無謂的車體轉動
 
-      # 速度上限略降，讓牆邊局部避障更穩。
-      vx_max:  0.25
-      vx_min: -0.25
-      vy_max:  0.25
-      vy_min: -0.25
+      vx_max:  0.50
+      vx_min: -0.50
+      vy_max:  0.50
+      vy_min: -0.50
       wz_max:  0.70
 
-      # 加速度限制需和 velocity_smoother 大致一致。
-      ax_max: 0.6
-      ax_min: -0.6
-      ay_max: 0.6
-      ay_min: -0.6
+      # 【修改 1-2：同步提升加速度，避免加速拖泥帶水】
+      ax_max: 0.8
+      ax_min: -0.8
+      ay_max: 0.8
+      ay_min: -0.8
       az_max: 1.0
 
       temperature: 0.3
       gamma: 0.015
 
-      # 原本 1.7 對 3x3 local costmap 偏大。這裡配合 4x4 local costmap 設 0.9。
       prune_distance: 0.9
       transform_tolerance: 0.3
       visualize: false
 
-      # 如果你的 Nav2 版本啟動時說 unknown parameter，可以先註解掉 retry_attempt_limit / open_loop。
       retry_attempt_limit: 3
       open_loop: false
 
@@ -137,12 +129,10 @@ controller_server:
         cost_power: 1
         cost_weight: 4.0
 
-      # 最關鍵修正：near_collision_cost 不要設成 100。
-      # 100 會讓很多 inflation 區域被視為過於危險，牆邊容易找不到可行軌跡。
       CostCritic:
         enabled: true
         cost_power: 1
-        cost_weight: 3.81
+        cost_weight: 1.0  # 【修改 3：微調下降至 3.0】讓機器人在牆邊稍微大膽一點點
         critical_cost: 300.0
         consider_footprint: true
         collision_cost: 1000000.0
@@ -159,17 +149,15 @@ controller_server:
       GoalAngleCritic:
         enabled: true
         cost_power: 1
-        cost_weight: 3.0
-        threshold_to_consider: 0.5
+        cost_weight: 3.0  # 從 3.0 降至 1.0，讓平移到達 XY 座標的優先級高於轉車頭
+        threshold_to_consider: 1.0  # 從 0.5 降至 0.2，直到離終點剩 20 公分時才開始慢慢轉正
 
-      # 麥克納姆輪不需要偏好前進，避免能橫移卻被迫轉正。
       PreferForwardCritic:
         enabled: false
         cost_power: 1
         cost_weight: 5.0
         threshold_to_consider: 0.5
 
-      # 原本 cost_weight 14 + offset 20 對牆邊可能太強，會硬貼 global path。
       PathAlignCritic:
         enabled: true
         cost_power: 1
@@ -186,14 +174,35 @@ controller_server:
         offset_from_furthest: 5
         threshold_to_consider: 1.0
 
-      # 對 omni/mecanum，路徑方向懲罰不宜太重，否則牆邊容易又想轉正又想避障。
+      # 【修改 2：徹底關閉路徑角度評分，解鎖麥輪完美平移/橫移能力】
       PathAngleCritic:
-        enabled: true
+        enabled: false
         cost_power: 1
         cost_weight: 1.5
         offset_from_furthest: 4
         threshold_to_consider: 0.5
         max_angle_to_furthest: 1.0
+
+# ...(中間 planner_server 等保持不變)...
+
+velocity_smoother:
+  ros__parameters:
+    use_sim_time: True
+    smoothing_frequency: 20.0
+    scale_velocities: false
+
+    feedback: "OPEN_LOOP"
+
+    # 【修改 1-3：速度平滑器的極限值必須同步放寬，否則控制器的指令會被這裡攔截】
+    max_velocity: [0.50, 0.50, 0.70]
+    min_velocity: [-0.50, -0.50, -0.70]
+    max_accel: [0.8, 0.8, 1.0]
+    max_decel: [-0.8, -0.8, -1.0]
+
+    odom_topic: /odom
+    odom_duration: 0.1
+    deadband_velocity: [0.0, 0.0, 0.0]
+    velocity_timeout: 1.0
 
 planner_server:
   ros__parameters:
@@ -218,7 +227,7 @@ planner_server:
 
       # 稍微提高，讓 global planner 不要太貼牆，但不要過高，避免狹窄通道無法通過。
       cost_travel_multiplier: 2.5
-      use_final_approach_orientation: true
+      use_final_approach_orientation: false
 
       smoother:
         max_iterations: 1000
