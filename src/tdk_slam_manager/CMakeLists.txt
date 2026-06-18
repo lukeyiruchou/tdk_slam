@@ -25,6 +25,7 @@ install(DIRECTORY
   sim
   urdf
   cartographer_config
+  maps
   DESTINATION share/${PROJECT_NAME}
 )
 

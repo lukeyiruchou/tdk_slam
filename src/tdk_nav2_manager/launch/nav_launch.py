@@ -12,7 +12,7 @@ from launch_ros.actions import Node
 def generate_launch_description():
     nav2_bringup_dir = get_package_share_directory('nav2_bringup')
     tdk_nav2_dir = get_package_share_directory('tdk_nav2_manager')
-    tdk_slam_dir = '/home/tdk/tdk_slam_ws/src/tdk_slam_manager'
+    tdk_slam_dir = get_package_share_directory('tdk_slam_manager')
 
     use_sim_time = LaunchConfiguration('use_sim_time')
     map_yaml_file = LaunchConfiguration('map')
