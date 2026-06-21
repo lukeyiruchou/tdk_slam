@@ -143,7 +143,7 @@ def generate_launch_description():
         ],
     )
 
-    map_yaml_file = os.path.join(localization_pkg, 'maps', 'carto_map_0.yaml')
+    map_yaml_file = os.path.join(localization_pkg, 'maps', 'real_map_0.yaml')
 
     # map_server
     map_server_node = Node(
