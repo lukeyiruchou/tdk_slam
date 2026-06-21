@@ -10,7 +10,7 @@ from launch_ros.actions import Node
 from launch.conditions import IfCondition
 
 def generate_launch_description():
-    localization_pkg = os.path.join('/home/tdk/tdk_slam_ws/src/tdk_slam_manager')
+    localization_pkg = get_package_share_directory('tdk_slam_manager')
     sllidar_pkg = get_package_share_directory('rplidar_ros')
     use_sim_time = LaunchConfiguration('use_sim_time', default='false')
     localization_mode = LaunchConfiguration('localization_mode', default='mapping')
@@ -139,7 +139,7 @@ def generate_launch_description():
         arguments=[
             '-configuration_directory', os.path.join(localization_pkg, 'cartographer_config'),
             '-configuration_basename', 'localization.lua',
-            '-load_state_filename', os.path.join(localization_pkg, 'maps', 'tdk_map_0.pbstream')
+            '-load_state_filename', os.path.join(localization_pkg, 'maps', 'real_map_0.pbstream')
         ],
     )
 

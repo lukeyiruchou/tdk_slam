@@ -1,6 +1,6 @@
 bt_navigator:
   ros__parameters:
-    use_sim_time: True
+    use_sim_time: False
     global_frame: map
     robot_base_frame: base_footprint
     odom_topic: /odom
@@ -55,7 +55,7 @@ bt_navigator:
 # Controller：MPPI（Omni）
 controller_server:
   ros__parameters:
-    use_sim_time: True
+    use_sim_time: False
     controller_frequency: 20.0          # MPPI 較吃 CPU；Docker 上若卡頓可降批次量(見下)
 
     # 低於此閾值的速度視為 0。麥輪要保留 y！不可設 0。
@@ -188,7 +188,7 @@ controller_server:
 # Planner：Smac 2D（全向，不考慮車頭，適合麥輪）
 planner_server:
   ros__parameters:
-    use_sim_time: True
+    use_sim_time: False
     expected_planner_frequency: 1.0     # 只是 warning 門檻，非實際重規劃頻率
 
     planner_plugins: ["GridBased"]
@@ -219,7 +219,7 @@ planner_server:
 
 smoother_server:
   ros__parameters:
-    use_sim_time: True
+    use_sim_time: False
     smoother_plugins: ["simple_smoother"]
 
     simple_smoother:
@@ -231,7 +231,7 @@ smoother_server:
 # Behavior（recovery 動作）
 behavior_server:
   ros__parameters:
-    use_sim_time: True
+    use_sim_time: False
     costmap_topic: local_costmap/costmap_raw
     footprint_topic: local_costmap/published_footprint
     cycle_frequency: 10.0
@@ -262,7 +262,7 @@ behavior_server:
 local_costmap:
   local_costmap:
     ros__parameters:
-      use_sim_time: True
+      use_sim_time: False
       update_frequency: 5.0
       publish_frequency: 2.0
       global_frame: odom
@@ -311,7 +311,7 @@ local_costmap:
 global_costmap:
   global_costmap:
     ros__parameters:
-      use_sim_time: True
+      use_sim_time: False
       update_frequency: 1.0
       publish_frequency: 1.0
       global_frame: map
@@ -358,7 +358,7 @@ global_costmap:
 # Waypoint Follower
 waypoint_follower:
   ros__parameters:
-    use_sim_time: True
+    use_sim_time: False
     loop_rate: 20
     stop_on_failure: false
     waypoint_task_executor_plugin: "wait_at_waypoint"
@@ -372,7 +372,7 @@ waypoint_follower:
 # Velocity Smoother（★ 全檔唯一一個，數值已與 MPPI 對齊）
 velocity_smoother:
   ros__parameters:
-    use_sim_time: True
+    use_sim_time: False
     smoothing_frequency: 20.0
     scale_velocities: false
 
@@ -394,7 +394,7 @@ velocity_smoother:
 # Lifecycle Manager
 lifecycle_manager_navigation:
   ros__parameters:
-    use_sim_time: True
+    use_sim_time: False
     autostart: True
     node_names:
       - controller_server

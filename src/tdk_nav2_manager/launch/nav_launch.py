@@ -62,12 +62,12 @@ def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument(
             'use_sim_time',
-            default_value='true',
+            default_value='false',
             description='Use simulation clock if true'
         ),
         DeclareLaunchArgument(
             'map',
-            default_value=os.path.join(tdk_slam_dir, 'maps', 'carto_map_0.yaml'),
+            default_value=os.path.join(tdk_slam_dir, 'maps', 'real_map_0.yaml'),
             description='Full path to pre-scanned map yaml file'
         ),
         map_server_node,
