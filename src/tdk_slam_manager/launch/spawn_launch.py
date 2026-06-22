@@ -8,6 +8,8 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.substitutions import FindPackageShare
 from launch_ros.actions import Node
 from launch.conditions import IfCondition
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, GroupAction
+from launch_ros.actions import Node, PushRosNamespace
 
 def generate_launch_description():
     localization_pkg = get_package_share_directory('tdk_slam_manager')
@@ -30,16 +32,29 @@ def generate_launch_description():
     )
 
     # start RPLiDAR S3
-    lidar_front = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(os.path.join(sllidar_pkg, 'launch', 'sllidar_s3_launch.py')),
-        launch_arguments={'serial_port': '/dev/ttyUSB0', 'frame_id': 'laser_front', 'inverted': 'true'}.items(),
-        namespace='front'
-    )
-    lidar_rear = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(os.path.join(sllidar_pkg, 'launch', 'sllidar_s3_launch.py')),
-        launch_arguments={'serial_port': '/dev/ttyUSB1', 'frame_id': 'laser_rear', 'inverted': 'true'}.items(),
-        namespace='rear'
-    )
+    lidar_front = GroupAction([
+        PushRosNamespace('front'),
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(os.path.join(sllidar_pkg, 'launch', 'rplidar_s3_launch.py')),
+            launch_arguments={
+                'serial_port': '/dev/ttyUSB0',
+                'frame_id': 'laser_front',
+                'inverted': 'false'
+            }.items()
+        )
+    ])
+
+    lidar_rear = GroupAction([
+        PushRosNamespace('rear'),
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(os.path.join(sllidar_pkg, 'launch', 'rplidar_s3_launch.py')),
+            launch_arguments={
+                'serial_port': '/dev/ttyUSB1',
+                'frame_id': 'laser_rear',
+                'inverted': 'false'
+            }.items()
+        )
+    ])
 
     filter_front = Node(
         package='tdk_slam_manager',
@@ -47,7 +62,7 @@ def generate_launch_description():
         name='filter_front',
         parameters=[{
             'lower_angle': -3.1415,
-            'upper_angle': -1.5708,
+            'upper_angle': -3.1415,
             'input_topic': '/front/scan',
             'output_topic': '/front/scan_filtered'
         }]
@@ -59,7 +74,7 @@ def generate_launch_description():
         name='filter_rear',
         parameters=[{
             'lower_angle': -3.1415,
-            'upper_angle': -1.5708,
+            'upper_angle': -3.1415,
             'input_topic': '/rear/scan',
             'output_topic': '/rear/scan_filtered'
         }]
