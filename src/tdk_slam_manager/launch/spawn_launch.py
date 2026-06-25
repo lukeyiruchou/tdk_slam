@@ -31,6 +31,19 @@ def generate_launch_description():
         }]
     )
 
+    odom_tf_broadcaster = Node(
+        package='tdk_slam_manager',
+        executable='odom_tf_broadcaster_node',
+        name='odom_tf_broadcaster',
+        output='screen',
+        parameters=[{
+            'odom_topic': '/odom',
+            'odom_frame': 'odom',
+            'base_frame': 'base_footprint',
+            'use_sim_time': use_sim_time
+        }]
+    )
+    
     # start RPLiDAR S3
     lidar_front = GroupAction([
         PushRosNamespace('front'),
@@ -199,6 +212,7 @@ def generate_launch_description():
         DeclareLaunchArgument('localization_mode', default_value='mapping'),
 
         robot_state_publisher,
+        odom_tf_broadcaster,
         lidar_front,
         lidar_rear,
         filter_front,

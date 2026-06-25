@@ -10,12 +10,19 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(gazebo_ros REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_ros REQUIRED)
 
 add_executable(laser_angle_filter_node src/laser_angle_filter.cpp)
 ament_target_dependencies(laser_angle_filter_node rclcpp sensor_msgs)
+add_executable(odom_tf_broadcaster_node src/odom_tf_broadcaster.cpp)
+ament_target_dependencies(odom_tf_broadcaster_node rclcpp nav_msgs geometry_msgs tf2 tf2_ros)
 
 install(TARGETS
   laser_angle_filter_node
+  odom_tf_broadcaster_node
   DESTINATION lib/${PROJECT_NAME}
 )
 
