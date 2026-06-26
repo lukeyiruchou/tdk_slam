@@ -35,4 +35,34 @@ TRAJECTORY_BUILDER_2D.use_imu_data = false
 TRAJECTORY_BUILDER_2D.min_range = 0.1
 TRAJECTORY_BUILDER_2D.max_range = 12.0
 
+
+-- -- 大幅增加 LiDAR 掃描特徵與子地圖匹配的權重 (預設通常是 1.0)
+-- TRAJECTORY_BUILDER_2D.ceres_scan_matcher.occupied_space_weight = 20.0
+-- -- 降低對 Odom 平移與旋轉的信任 (預設通常為 10.0 和 40.0)
+-- TRAJECTORY_BUILDER_2D.ceres_scan_matcher.translation_weight = 5.0
+-- TRAJECTORY_BUILDER_2D.ceres_scan_matcher.rotation_weight = 15.0
+
+-- -- 因為上方已開啟 use_online_correlative_scan_matching，此處降低偏離 Odom 的懲罰
+-- -- 讓系統在暴力搜尋時，更自由地用 LiDAR 找最佳吻合點
+-- TRAJECTORY_BUILDER_2D.real_time_correlative_scan_matcher.translation_delta_cost_weight = 0.1
+-- TRAJECTORY_BUILDER_2D.real_time_correlative_scan_matcher.rotation_delta_cost_weight = 0.1
+
+-- -- 3. 後端位姿圖優化 (Global SLAM)
+-- -- 降低後端優化時對 Odom 約束的權重 (預設通常是 1e5)
+-- POSE_GRAPH.optimization_problem.odometry_translation_weight = 1e3
+-- POSE_GRAPH.optimization_problem.odometry_rotation_weight = 1e3
+
+-- Ceres scan matcher (defaults)
+TRAJECTORY_BUILDER_2D.ceres_scan_matcher.occupied_space_weight = 1.0
+TRAJECTORY_BUILDER_2D.ceres_scan_matcher.translation_weight = 10.0
+TRAJECTORY_BUILDER_2D.ceres_scan_matcher.rotation_weight = 40.0
+
+-- Real-time correlative scan matcher (defaults)
+TRAJECTORY_BUILDER_2D.real_time_correlative_scan_matcher.translation_delta_cost_weight = 1e-1
+TRAJECTORY_BUILDER_2D.real_time_correlative_scan_matcher.rotation_delta_cost_weight = 1e-1
+
+-- Pose graph odometry weights (defaults)
+POSE_GRAPH.optimization_problem.odometry_translation_weight = 1e5
+POSE_GRAPH.optimization_problem.odometry_rotation_weight = 1e5
+
 return options

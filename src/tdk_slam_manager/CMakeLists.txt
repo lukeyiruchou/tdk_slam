@@ -26,6 +26,7 @@ install(TARGETS
   DESTINATION lib/${PROJECT_NAME}
 )
 
+# 這裡加入了 rviz 資料夾，編譯時才會被複製到 share 空間
 install(DIRECTORY
   launch
   config
@@ -33,6 +34,7 @@ install(DIRECTORY
   urdf
   cartographer_config
   maps
+  rviz
   DESTINATION share/${PROJECT_NAME}
 )
 
