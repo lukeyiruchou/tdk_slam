@@ -35,18 +35,13 @@ private:
     void odom_callback(const nav_msgs::msg::Odometry::SharedPtr msg) {
         geometry_msgs::msg::TransformStamped t;
 
-        // 用 odom 訊息的時間戳讓 tf 與里程計同步；
-        // 若韌體沒填時間戳 (stamp == 0) 則退回現在時間，避免 tf 被視為過期。
-        if (msg->header.stamp.sec == 0 && msg->header.stamp.nanosec == 0) {
-            t.header.stamp = this->get_clock()->now();
-        } else {
-            t.header.stamp = msg->header.stamp;
-        }
+        // 實機 micro-ROS 來源先不要信任 STM32 timestamp，
+        // 直接用上位機 ROS time，避免 TF 落後 scan timestamp。
+        t.header.stamp = this->get_clock()->now();
 
         t.header.frame_id = odom_frame_;
         t.child_frame_id = base_frame_;
 
-        // odom 訊息的 pose 就是 base 在 odom 座標下的位姿，直接搬進 transform。
         t.transform.translation.x = msg->pose.pose.position.x;
         t.transform.translation.y = msg->pose.pose.position.y;
         t.transform.translation.z = msg->pose.pose.position.z;

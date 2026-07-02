@@ -50,7 +50,7 @@ def generate_launch_description():
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(os.path.join(sllidar_pkg, 'launch', 'rplidar_s3_launch.py')),
             launch_arguments={
-                'serial_port': '/dev/ttyUSB0',
+                'serial_port': '/dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_aeb5947e2277ed119525e9fafdf7b791-if00-port0',
                 'frame_id': 'laser_front',
                 'inverted': 'false'
             }.items()
@@ -62,7 +62,7 @@ def generate_launch_description():
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(os.path.join(sllidar_pkg, 'launch', 'rplidar_s3_launch.py')),
             launch_arguments={
-                'serial_port': '/dev/ttyUSB1',
+                'serial_port': '/dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_f450dedc3e77ed118311f6fafdf7b791-if00-port0',
                 'frame_id': 'laser_rear',
                 'inverted': 'false'
             }.items()
