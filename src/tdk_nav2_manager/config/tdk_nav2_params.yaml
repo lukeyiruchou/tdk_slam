@@ -83,22 +83,21 @@ controller_server:
                                         #   xy 達標後鎖定,shim 原地旋轉的微小平移不會導致重追 xy
 
     FollowPath:
-      # ═══ RotationShim 外殼 ═══
-      plugin: "nav2_rotation_shim_controller::RotationShimController"
-      primary_controller: "nav2_mppi_controller::MPPIController"
+      # # ═══ RotationShim 外殼 ═══
+      # plugin: "nav2_rotation_shim_controller::RotationShimController"
+      # primary_controller: "nav2_mppi_controller::MPPIController"
 
-      angular_dist_threshold: 0.785       # 45°。航向差超過此值才觸發原地旋轉
-      forward_sampling_distance: 0.3      # ★官方 0.5→0.3:必須 ≤ prune_distance(0.5),
-                                          #   且低速短路徑下取 0.3 避免目標太近時取樣失敗
-      rotate_to_heading_angular_vel: 1.5  # ★官方 1.8→1.5:留 25% 餘裕給 wz_max 2.0,
-                                          #   避免頂著上限跑導致 smoother 截斷
-      max_angular_accel: 4.0              # ★官方 3.2→2.0:與 az_max 及 velocity_smoother
-                                          #   的 max_accel[2]=2.0 對齊,否則 smoother 會拖慢它
-      simulate_ahead_time: 1.0            # 旋轉前碰撞預測 1s,搭配 local costmap 3x3 足夠
-      rotate_to_goal_heading: true        # ★到達 xy 容差後由 shim 接管做最終轉向,
-                                          #   精準停靠的 yaw 收斂更快更確定
+      # angular_dist_threshold: 0.785       # 45°。航向差超過此值才觸發原地旋轉
+      # forward_sampling_distance: 0.3      # ★官方 0.5→0.3:必須 ≤ prune_distance(0.5),
+      #                                     #   且低速短路徑下取 0.3 避免目標太近時取樣失敗
+      # rotate_to_heading_angular_vel: 1.5  # ★官方 1.8→1.5:留 25% 餘裕給 wz_max 2.0,
+      #                                     #   避免頂著上限跑導致 smoother 截斷
+      # max_angular_accel: 4.0              # ★官方 3.2→2.0:與 az_max 及 velocity_smoother
+      #                                     #   的 max_accel[2]=2.0 對齊,否則 smoother 會拖慢它
+      # simulate_ahead_time: 1.0            # 旋轉前碰撞預測 1s,搭配 local costmap 3x3 足夠
+      # rotate_to_goal_heading: true        # ★到達 xy 容差後由 shim 接管做最終轉向,
 
-      # ═══ 以下為 primary controller (MPPI) 參數,與 shim 共用同一命名空間 ═══
+      # # ═══ 以下為 primary controller (MPPI) 參數,與 shim 共用同一命名空間 ═══
       motion_model: "Omni"
       time_steps: 20
       model_dt: 0.1
@@ -123,8 +122,8 @@ controller_server:
       temperature: 0.3
       gamma: 0.015
 
-      prune_distance: 0.5
-      transform_tolerance: 0.3
+      prune_distance: 1.5
+      transform_tolerance: 1.3
       visualize: false
 
       retry_attempt_limit: 3
