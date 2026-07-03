@@ -95,9 +95,9 @@ controller_server:
 
       # --- 取樣標準差 ---
       # ★改: 依最大速度與旋轉等比放大，避免取樣在邊界被大量截斷導致輸出震盪 (vx/vy * 1.5, wz * 2)
-      vx_std: 0.075
-      vy_std: 0.075
-      wz_std: 0.30
+      vx_std: 0.085
+      vy_std: 0.085
+      wz_std: 0.60
 
       vx_max:  0.195
       vx_min: -0.195
