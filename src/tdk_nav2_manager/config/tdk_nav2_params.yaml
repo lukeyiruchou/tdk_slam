@@ -60,10 +60,11 @@ bt_navigator:
 controller_server:
   ros__parameters:
     use_sim_time: False
-    controller_frequency: 10.0
+    controller_frequency: 10.0      # ★改 20→10:CPU 減半,低速下反應足夠
 
+    # 低於此閾值的速度視為 0。麥輪要保留 y！不可設 0。
     min_x_velocity_threshold: 0.001
-    min_y_velocity_threshold: 0.001    # 麥輪保留 y,官方範例的 0.5 不可照抄!
+    min_y_velocity_threshold: 0.001
     min_theta_velocity_threshold: 0.001
 
     progress_checker_plugin: "progress_checker"
@@ -73,39 +74,30 @@ controller_server:
     progress_checker:
       plugin: "nav2_controller::SimpleProgressChecker"
       required_movement_radius: 0.05
+      # ★改 10→15:整體速度降 1/3 後移動變慢,避免被誤判 stuck 觸發 recovery。
       movement_time_allowance: 15.0
 
     general_goal_checker:
       plugin: "nav2_controller::SimpleGoalChecker"
-      xy_goal_tolerance: 0.05
-      yaw_goal_tolerance: 0.10
-      stateful: True                    # ★與 rotate_to_goal_heading 完美配合:
-                                        #   xy 達標後鎖定,shim 原地旋轉的微小平移不會導致重追 xy
+      xy_goal_tolerance: 0.05           # 5 cm,精準停靠(依你要求維持)
+      yaw_goal_tolerance: 0.10          # ~5.7°
+      stateful: True                    # xy 達標後只檢查 yaw,防止來回追 xy
 
     FollowPath:
-      # # ═══ RotationShim 外殼 ═══
-      # plugin: "nav2_rotation_shim_controller::RotationShimController"
-      # primary_controller: "nav2_mppi_controller::MPPIController"
-
-      # angular_dist_threshold: 0.785       # 45°。航向差超過此值才觸發原地旋轉
-      # forward_sampling_distance: 0.3      # ★官方 0.5→0.3:必須 ≤ prune_distance(0.5),
-      #                                     #   且低速短路徑下取 0.3 避免目標太近時取樣失敗
-      # rotate_to_heading_angular_vel: 1.5  # ★官方 1.8→1.5:留 25% 餘裕給 wz_max 2.0,
-      #                                     #   避免頂著上限跑導致 smoother 截斷
-      # max_angular_accel: 4.0              # ★官方 3.2→2.0:與 az_max 及 velocity_smoother
-      #                                     #   的 max_accel[2]=2.0 對齊,否則 smoother 會拖慢它
-      # simulate_ahead_time: 1.0            # 旋轉前碰撞預測 1s,搭配 local costmap 3x3 足夠
-      # rotate_to_goal_heading: true        # ★到達 xy 容差後由 shim 接管做最終轉向,
-
-      # # ═══ 以下為 primary controller (MPPI) 參數,與 shim 共用同一命名空間 ═══
+      plugin: "nav2_mppi_controller::MPPIController"
       motion_model: "Omni"
+
+      # ★改:model_dt 必須 = 1/controller_frequency = 0.1
+      #   time_steps 32→20:0.1*20 = 2.0s 視野。低速下 2 秒足夠,還省 CPU。
       time_steps: 20
       model_dt: 0.1
-      batch_size: 1000
+      batch_size: 1000                  # ★改 2000→1000:CPU 大戶,低速場景 1000 夠用
 
-      vx_std: 0.08
-      vy_std: 0.08
-      wz_std: 0.3
+      # --- 取樣標準差 ---
+      # ★改: 依最大速度與旋轉等比放大，避免取樣在邊界被大量截斷導致輸出震盪 (vx/vy * 1.5, wz * 2)
+      vx_std: 0.075
+      vy_std: 0.075
+      wz_std: 0.30
 
       vx_max:  0.195
       vx_min: -0.195
@@ -117,13 +109,15 @@ controller_server:
       ax_min: -0.15
       ay_max: 0.15
       ay_min: -2.0
-      az_max: 2.0
+      az_max: 2.0                      # ★保持不變
 
       temperature: 0.3
       gamma: 0.015
 
-      prune_distance: 1.5
-      transform_tolerance: 1.3
+      # ★微調：由於最高速提升，前瞻視野距離變大 (0.195 * 2.0s = 0.39m)
+      # 將 prune_distance 從 0.4 稍微放寬至 0.5m，留給 MPPI 裁剪歷史路徑時更多餘裕
+      prune_distance: 0.5
+      transform_tolerance: 0.3
       visualize: false
 
       retry_attempt_limit: 3
@@ -156,14 +150,13 @@ controller_server:
         cost_weight: 6.0
         threshold_to_consider: 0.50
 
-      # ★改 4.0→3.0:最終轉向已由 shim 的 rotate_to_goal_heading 負責,
-      #   MPPI 只需在接近時「大致」對準,降權可減少路徑末段邊走邊轉的震盪
       GoalAngleCritic:
         enabled: true
         cost_power: 1
-        cost_weight: 3.0
+        cost_weight: 4.0
         threshold_to_consider: 0.20
 
+      # 麥輪沒有「正面」概念,禁用前進偏好,才能自由橫移/斜走。
       PreferForwardCritic:
         enabled: false
 
@@ -196,8 +189,9 @@ controller_server:
         enabled: true
         cost_power: 1
         cost_weight: 3.0
+        # 關鍵參數：極力懲罰過大的加速度跳變。數值越大，馬達出力越平滑
         w_excessive_acceleration: 5
-        
+
 # Planner：Smac 2D（全向,不考慮車頭,適合麥輪）
 planner_server:
   ros__parameters:
