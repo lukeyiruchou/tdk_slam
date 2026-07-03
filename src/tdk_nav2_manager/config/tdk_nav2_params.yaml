@@ -106,9 +106,9 @@ controller_server:
       model_dt: 0.1
       batch_size: 1000
 
-      vx_std: 0.075
-      vy_std: 0.075
-      wz_std: 0.30
+      vx_std: 0.20
+      vy_std: 0.20
+      wz_std: 0.45
 
       vx_max:  0.4
       vx_min: -0.4
@@ -116,11 +116,11 @@ controller_server:
       vy_min: -0.4
       wz_max:  2.0
 
-      ax_max: 0.15
-      ax_min: -0.15
-      ay_max: 0.15
-      ay_min: -2.0
-      az_max: 2.0
+      ax_max: 0.50
+      ax_min: -0.50
+      ay_max: 0.50
+      ay_min: -0.50
+      az_max: 2.5
 
       temperature: 0.3
       gamma: 0.015
@@ -385,11 +385,10 @@ velocity_smoother:
 
     feedback: "OPEN_LOOP"
 
-    # [X, Y, Theta] ★改:與 MPPI 新上限完全對齊。麥輪務必保留 Y!
     max_velocity: [0.4, 0.4, 2.0]
     min_velocity: [-0.4, -0.4, -2.0]
-    max_accel: [0.15, 0.15, 2.0]        # ★加速度保持不變
-    max_decel: [-0.15, -0.15, -2.0]
+    max_accel: [0.50, 0.50, 2.5]
+    max_decel: [-0.50, -0.50, -2.5]
 
     odom_topic: /odom
     odom_duration: 0.1
