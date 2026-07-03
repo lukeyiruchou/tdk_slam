@@ -90,9 +90,9 @@ controller_server:
       angular_dist_threshold: 0.785       # 45°。航向差超過此值才觸發原地旋轉
       forward_sampling_distance: 0.3      # ★官方 0.5→0.3:必須 ≤ prune_distance(0.5),
                                           #   且低速短路徑下取 0.3 避免目標太近時取樣失敗
-      rotate_to_heading_angular_vel: 2.0  # ★官方 1.8→1.5:留 25% 餘裕給 wz_max 2.0,
+      rotate_to_heading_angular_vel: 1.5  # ★官方 1.8→1.5:留 25% 餘裕給 wz_max 2.0,
                                           #   避免頂著上限跑導致 smoother 截斷
-      max_angular_accel: 3.0              # ★官方 3.2→2.0:與 az_max 及 velocity_smoother
+      max_angular_accel: 2.0              # ★官方 3.2→2.0:與 az_max 及 velocity_smoother
                                           #   的 max_accel[2]=2.0 對齊,否則 smoother 會拖慢它
       simulate_ahead_time: 1.0            # 旋轉前碰撞預測 1s,搭配 local costmap 3x3 足夠
       rotate_to_goal_heading: true        # ★到達 xy 容差後由 shim 接管做最終轉向,
@@ -198,7 +198,7 @@ controller_server:
         cost_power: 1
         cost_weight: 3.0
         w_excessive_acceleration: 5
-
+        
 # Planner：Smac 2D（全向,不考慮車頭,適合麥輪）
 planner_server:
   ros__parameters:
@@ -265,7 +265,7 @@ behavior_server:
     simulate_ahead_time: 2.0
     max_rotational_vel: 2.0            # ★改 0.45→0.90:與新 wz_max 對齊
     min_rotational_vel: 0.10            # ★改 0.15→0.10
-    rotational_acc_lim: 1.5             # ★保持不變: recovery 旋轉加速度也維持
+    rotational_acc_lim: 0.5             # ★保持不變: recovery 旋轉加速度也維持
 
 # Local Costmap（滾動視窗）
 local_costmap:
@@ -386,8 +386,8 @@ velocity_smoother:
     # [X, Y, Theta] ★改:與 MPPI 新上限完全對齊。麥輪務必保留 Y!
     max_velocity: [0.195, 0.18, 2.0]
     min_velocity: [-0.195, -0.18, -2.0]
-    max_accel: [0.15, 0.15, 3.0]        # ★加速度保持不變
-    max_decel: [-0.15, -0.15, -3.0]
+    max_accel: [0.15, 0.15, 2.0]        # ★加速度保持不變
+    max_decel: [-0.15, -0.15, -2.0]
 
     odom_topic: /odom
     odom_duration: 0.1
