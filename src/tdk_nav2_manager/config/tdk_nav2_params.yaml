@@ -92,12 +92,10 @@ controller_server:
                                           #   且低速短路徑下取 0.3 避免目標太近時取樣失敗
       rotate_to_heading_angular_vel: 1.5  # ★官方 1.8→1.5:留 25% 餘裕給 wz_max 2.0,
                                           #   避免頂著上限跑導致 smoother 截斷
-      max_angular_accel: 6.0              # ★官方 3.2→2.0:與 az_max 及 velocity_smoother
+      max_angular_accel: 4.0              # ★官方 3.2→2.0:與 az_max 及 velocity_smoother
                                           #   的 max_accel[2]=2.0 對齊,否則 smoother 會拖慢它
       simulate_ahead_time: 1.0            # 旋轉前碰撞預測 1s,搭配 local costmap 3x3 足夠
       rotate_to_goal_heading: true        # ★到達 xy 容差後由 shim 接管做最終轉向,
-      closed_loop: true                  # ★關鍵:改用自己上一筆命令當回授,
-
                                           #   精準停靠的 yaw 收斂更快更確定
 
       # ═══ 以下為 primary controller (MPPI) 參數,與 shim 共用同一命名空間 ═══
@@ -106,22 +104,22 @@ controller_server:
       model_dt: 0.1
       batch_size: 1000
 
-      vx_max: 0.6
-      vx_min: -0.25
-      vy_max: 0.4
-      vy_min: -0.4
-      wz_max: 1.6
+      vx_std: 0.1
+      vy_std: 0.1
+      wz_std: 0.60
 
-      vx_std: 0.14
-      vy_std: 0.10
-      wz_std: 0.35
+      vx_max:  0.195
+      vx_min: -0.195
+      vy_max:  0.18
+      vy_min: -0.18
+      wz_max:  2.0
 
       ax_max: 0.15
       ax_min: -0.15
-      ay_max: 0.25
-      ay_min: -0.25
-      az_max: 1.6
-      
+      ay_max: 0.15
+      ay_min: -2.0
+      az_max: 2.0
+
       temperature: 0.3
       gamma: 0.015
 
@@ -173,8 +171,8 @@ controller_server:
       PathAlignCritic:
         enabled: true
         cost_power: 1
-        cost_weight: 2.0
-        max_path_occupancy_ratio: 0.8
+        cost_weight: 4.0
+        max_path_occupancy_ratio: 0.10
         trajectory_point_step: 4
         threshold_to_consider: 0.6
         offset_from_furthest: 8
@@ -195,11 +193,11 @@ controller_server:
         max_angle_to_furthest: 1.0
         mode: 1
 
-      # MotionCritic:
-      #   enabled: true
-      #   cost_power: 1
-      #   cost_weight: 3.0
-      #   w_excessive_acceleration: 5
+      MotionCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 3.0
+        w_excessive_acceleration: 5
         
 # Planner：Smac 2D（全向,不考慮車頭,適合麥輪）
 planner_server:
@@ -385,12 +383,12 @@ velocity_smoother:
 
     feedback: "OPEN_LOOP"
 
-    max_velocity: [0.5, 0.4, 1.6]
-    min_velocity: [-0.25, -0.4, -1.6]
+    # [X, Y, Theta] ★改:與 MPPI 新上限完全對齊。麥輪務必保留 Y!
+    max_velocity: [0.195, 0.18, 2.0]
+    min_velocity: [-0.195, -0.18, -2.0]
+    max_accel: [0.15, 0.15, 2.0]        # ★加速度保持不變
+    max_decel: [-0.15, -0.15, -2.0]
 
-    max_accel: [0.25, 0.20, 1.0]
-    max_decel: [-0.30, -0.25, -1.3]
-    
     odom_topic: /odom
     odom_duration: 0.1
     deadband_velocity: [0.0, 0.0, 0.0]
