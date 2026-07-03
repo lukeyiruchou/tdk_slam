@@ -99,19 +99,17 @@ controller_server:
       vy_std: 0.075
       wz_std: 0.30
 
-      # --- 速度上限(★改: 速度 * 1.5, 旋轉 * 2, 與 velocity_smoother 完全對齊)---
       vx_max:  0.195
       vx_min: -0.195
       vy_max:  0.18
       vy_min: -0.18
-      wz_max:  1.5
+      wz_max:  2.0
 
-      # --- 加速度上限(★保持不變：到達全速約需 1.3s, 起步/減速依然柔和平滑，防暴衝)---
       ax_max: 0.15
       ax_min: -0.15
       ay_max: 0.15
-      ay_min: -0.15
-      az_max: 0.5                      # ★保持不變
+      ay_min: -2.0
+      az_max: 2.0                      # ★保持不變
 
       temperature: 0.3
       gamma: 0.015
@@ -258,7 +256,7 @@ behavior_server:
     robot_base_frame: base_footprint
     transform_tolerance: 0.3
     simulate_ahead_time: 2.0
-    max_rotational_vel: 0.90            # ★改 0.45→0.90:與新 wz_max 對齊
+    max_rotational_vel: 2.0            # ★改 0.45→0.90:與新 wz_max 對齊
     min_rotational_vel: 0.10            # ★改 0.15→0.10
     rotational_acc_lim: 0.5             # ★保持不變: recovery 旋轉加速度也維持
 
@@ -379,10 +377,10 @@ velocity_smoother:
     feedback: "OPEN_LOOP"
 
     # [X, Y, Theta] ★改:與 MPPI 新上限完全對齊。麥輪務必保留 Y!
-    max_velocity: [0.195, 0.18, 0.90]
-    min_velocity: [-0.195, -0.18, -0.90]
-    max_accel: [0.15, 0.15, 0.5]        # ★加速度保持不變
-    max_decel: [-0.15, -0.15, -0.5]
+    max_velocity: [0.195, 0.18, 2.0]
+    min_velocity: [-0.195, -0.18, -2.0]
+    max_accel: [0.15, 0.15, 2.0]        # ★加速度保持不變
+    max_decel: [-0.15, -0.15, -2.0]
 
     odom_topic: /odom
     odom_duration: 0.1
