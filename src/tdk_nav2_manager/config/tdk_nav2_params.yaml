@@ -96,6 +96,8 @@ controller_server:
                                           #   的 max_accel[2]=2.0 對齊,否則 smoother 會拖慢它
       simulate_ahead_time: 1.0            # 旋轉前碰撞預測 1s,搭配 local costmap 3x3 足夠
       rotate_to_goal_heading: true        # ★到達 xy 容差後由 shim 接管做最終轉向,
+      closed_loop: false                  # ★關鍵:改用自己上一筆命令當回授,
+
                                           #   精準停靠的 yaw 收斂更快更確定
 
       # ═══ 以下為 primary controller (MPPI) 參數,與 shim 共用同一命名空間 ═══
@@ -108,10 +110,10 @@ controller_server:
       vy_std: 0.075
       wz_std: 0.30
 
-      vx_max:  0.195
-      vx_min: -0.195
-      vy_max:  0.18
-      vy_min: -0.18
+      vx_max:  0.4
+      vx_min: -0.4
+      vy_max:  0.4
+      vy_min: -0.4
       wz_max:  2.0
 
       ax_max: 0.15
@@ -384,8 +386,8 @@ velocity_smoother:
     feedback: "OPEN_LOOP"
 
     # [X, Y, Theta] ★改:與 MPPI 新上限完全對齊。麥輪務必保留 Y!
-    max_velocity: [0.195, 0.18, 2.0]
-    min_velocity: [-0.195, -0.18, -2.0]
+    max_velocity: [0.4, 0.4, 2.0]
+    min_velocity: [-0.4, -0.4, -2.0]
     max_accel: [0.15, 0.15, 2.0]        # ★加速度保持不變
     max_decel: [-0.15, -0.15, -2.0]
 
