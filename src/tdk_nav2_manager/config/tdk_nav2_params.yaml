@@ -150,28 +150,25 @@ controller_server:
         enabled: true
         cost_power: 1
         cost_weight: 6.0
-        threshold_to_consider: 1.0
+        threshold_to_consider: 0.50
 
       GoalAngleCritic:
         enabled: true
         cost_power: 1
-        cost_weight: 3.0
-        threshold_to_consider: 0.40
+        cost_weight: 4.0
+        threshold_to_consider: 0.20
 
       # 麥輪沒有「正面」概念,禁用前進偏好,才能自由橫移/斜走。
       PreferForwardCritic:
         enabled: false
-        cost_power: 1
-        cost_weight: 5.0
-        threshold_to_consider: 0.5
 
       PathAlignCritic:
         enabled: true
         cost_power: 1
-        cost_weight: 8.0
+        cost_weight: 4.0
         max_path_occupancy_ratio: 0.10
         trajectory_point_step: 4
-        threshold_to_consider: 0.5
+        threshold_to_consider: 0.6
         offset_from_furthest: 8
 
       PathFollowCritic:
@@ -189,6 +186,13 @@ controller_server:
         threshold_to_consider: 0.5
         max_angle_to_furthest: 1.0
         mode: 1
+
+      MotionCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 3.0
+        # 關鍵參數：極力懲罰過大的加速度跳變。數值越大，馬達出力越平滑
+        w_excessive_acceleration: 2.5
 
 # Planner：Smac 2D（全向,不考慮車頭,適合麥輪）
 planner_server:
