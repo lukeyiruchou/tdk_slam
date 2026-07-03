@@ -1,3 +1,4 @@
+# bt_navigator
 bt_navigator:
   ros__parameters:
     use_sim_time: False
@@ -59,7 +60,7 @@ bt_navigator:
 controller_server:
   ros__parameters:
     use_sim_time: False
-    controller_frequency: 10.0          # ★改 20→10:CPU 減半,低速下反應足夠
+    controller_frequency: 10.0      # ★改 20→10:CPU 減半,低速下反應足夠
 
     # 低於此閾值的速度視為 0。麥輪要保留 y！不可設 0。
     min_x_velocity_threshold: 0.001
@@ -93,31 +94,31 @@ controller_server:
       batch_size: 1000                  # ★改 2000→1000:CPU 大戶,低速場景 1000 夠用
 
       # --- 取樣標準差 ---
-      # ★改 0.20→依新速度上限等比縮小。std 若比 vmax 還大,大量樣本被截斷、
-      #   輸出抖動,是低速震盪的常見主因。
-      vx_std: 0.05
-      vy_std: 0.05
-      wz_std: 0.15
+      # ★改: 依最大速度與旋轉等比放大，避免取樣在邊界被大量截斷導致輸出震盪 (vx/vy * 1.5, wz * 2)
+      vx_std: 0.075
+      vy_std: 0.075
+      wz_std: 0.30
 
-      # --- 速度上限(★改:降到原本 1/3,wz 依你指定 0.45,與 velocity_smoother 對齊)---
-      vx_max:  0.13
-      vx_min: -0.13
-      vy_max:  0.12
-      vy_min: -0.12
-      wz_max:  0.45
+      # --- 速度上限(★改: 速度 * 1.5, 旋轉 * 2, 與 velocity_smoother 完全對齊)---
+      vx_max:  0.195
+      vx_min: -0.195
+      vy_max:  0.18
+      vy_min: -0.18
+      wz_max:  0.90
 
-      # --- 加速度上限(★改 0.6→0.15:到達全速約需 0.9s,起步/減速更緩,防暴衝)---
+      # --- 加速度上限(★保持不變：到達全速約需 1.3s, 起步/減速依然柔和平滑，防暴衝)---
       ax_max: 0.15
       ax_min: -0.15
       ay_max: 0.15
       ay_min: -0.15
-      az_max: 0.5                       # ★改 1.0→0.5
+      az_max: 0.5                      # ★保持不變
 
       temperature: 0.3
       gamma: 0.015
 
-      # ★改 0.9→0.4:視野距離變成 0.13*2.0 ≈ 0.26m,prune 留餘裕即可
-      prune_distance: 0.4
+      # ★微調：由於最高速提升，前瞻視野距離變大 (0.195 * 2.0s = 0.39m)
+      # 將 prune_distance 從 0.4 稍微放寬至 0.5m，留給 MPPI 裁剪歷史路徑時更多餘裕
+      prune_distance: 0.5
       transform_tolerance: 0.3
       visualize: false
 
@@ -253,9 +254,9 @@ behavior_server:
     robot_base_frame: base_footprint
     transform_tolerance: 0.3
     simulate_ahead_time: 2.0
-    max_rotational_vel: 0.45            # ★改 0.6→0.45:與 wz_max 對齊
+    max_rotational_vel: 0.90            # ★改 0.45→0.90:與新 wz_max 對齊
     min_rotational_vel: 0.10            # ★改 0.15→0.10
-    rotational_acc_lim: 0.5             # ★改 1.0→0.5:recovery 旋轉也放緩
+    rotational_acc_lim: 0.5             # ★保持不變: recovery 旋轉加速度也維持
 
 # Local Costmap（滾動視窗）
 local_costmap:
@@ -374,9 +375,9 @@ velocity_smoother:
     feedback: "OPEN_LOOP"
 
     # [X, Y, Theta] ★改:與 MPPI 新上限完全對齊。麥輪務必保留 Y!
-    max_velocity: [0.13, 0.12, 0.45]
-    min_velocity: [-0.13, -0.12, -0.45]
-    max_accel: [0.15, 0.15, 0.5]        # ★改:與 MPPI ax/ay/az 對齊,起步緩衝約 0.9s
+    max_velocity: [0.195, 0.18, 0.90]
+    min_velocity: [-0.195, -0.18, -0.90]
+    max_accel: [0.15, 0.15, 0.5]        # ★加速度保持不變
     max_decel: [-0.15, -0.15, -0.5]
 
     odom_topic: /odom
