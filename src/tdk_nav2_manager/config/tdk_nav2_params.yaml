@@ -78,8 +78,8 @@ controller_server:
 
     general_goal_checker:
       plugin: "nav2_controller::SimpleGoalChecker"
-      xy_goal_tolerance: 0.03           # 3 cm,精準停靠
-      yaw_goal_tolerance: 0.05          # ~2.85°
+      xy_goal_tolerance: 0.05           # 3 cm,精準停靠
+      yaw_goal_tolerance: 0.10          # ~2.85°
       stateful: True                    # xy 達標後只檢查 yaw
 
     FollowPath:
@@ -94,23 +94,23 @@ controller_server:
       # ★v3:速度×3,std 等比放大維持相同比例(慢速版已驗證此比例不震盪)。
       #   wz_std 是原地旋轉能力的關鍵:太低會取樣不到純旋轉軌跡,
       #   機器人就只會用小弧線前後嚕來調頭。官方參考值即為 0.4。
-      vx_std: 0.15
-      vy_std: 0.15
-      wz_std: 0.4
+      vx_std: 0.1
+      vy_std: 0.1
+      wz_std: 0.3
 
       # --- 速度上限(★v3:×3,與 velocity_smoother 對齊)---
-      vx_max:  0.39
-      vx_min: -0.39
-      vy_max:  0.36
-      vy_min: -0.36
+      vx_max:  0.26
+      vx_min: -0.26
+      vy_max:  0.24
+      vy_min: -0.24
       wz_max:  1.35
 
       # --- 加速度上限(★v3:×3,與 velocity_smoother 對齊。az 放寬讓旋轉能在
       #     2 秒視野內轉出足夠角度,旋轉軌跡評分才佔得到便宜)---
-      ax_max: 0.45
-      ax_min: -0.45
-      ay_max: 0.45
-      ay_min: -0.45
+      ax_max: 0.3
+      ax_min: -0.3
+      ay_max: 0.3
+      ay_min: -0.3
       az_max: 1.5
 
       temperature: 0.3
@@ -377,10 +377,10 @@ velocity_smoother:
     feedback: "OPEN_LOOP"
 
     # [X, Y, Theta] ★v3:×3,與 MPPI 新上限完全對齊。麥輪務必保留 Y!
-    max_velocity: [0.39, 0.36, 1.35]
-    min_velocity: [-0.39, -0.36, -1.35]
-    max_accel: [0.45, 0.45, 1.5]
-    max_decel: [-0.45, -0.45, -1.5]
+    max_velocity: [0.26, 0.24, 1.35]
+    min_velocity: [-0.26, -0.24, -1.35]
+    max_accel: [0.3, 0.3, 1.5]
+    max_decel: [-0.3, -0.3, -1.5]
 
     odom_topic: /odom
     odom_duration: 0.1
