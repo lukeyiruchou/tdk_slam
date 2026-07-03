@@ -104,8 +104,8 @@ controller_server:
       model_dt: 0.1
       batch_size: 1000
 
-      vx_std: 0.085
-      vy_std: 0.085
+      vx_std: 0.08
+      vy_std: 0.08
       wz_std: 0.3
 
       vx_max:  0.195
