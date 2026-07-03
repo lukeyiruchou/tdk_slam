@@ -134,7 +134,7 @@ controller_server:
 
       critics: [
         "ConstraintCritic", "CostCritic", "GoalCritic",
-        "GoalAngleCritic", "PathAlignCritic", "PathFollowCritic", "MotionCritic"
+        "GoalAngleCritic", "PathAlignCritic", "PathFollowCritic"
       ]
 
       ConstraintCritic:
@@ -195,11 +195,11 @@ controller_server:
         max_angle_to_furthest: 1.0
         mode: 1
 
-      MotionCritic:
-        enabled: true
-        cost_power: 1
-        cost_weight: 3.0
-        w_excessive_acceleration: 5
+      # MotionCritic:
+      #   enabled: true
+      #   cost_power: 1
+      #   cost_weight: 3.0
+      #   w_excessive_acceleration: 5
         
 # Planner：Smac 2D（全向,不考慮車頭,適合麥輪）
 planner_server:
