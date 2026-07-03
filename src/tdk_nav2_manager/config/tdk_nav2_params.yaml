@@ -4,9 +4,7 @@ bt_navigator:
     global_frame: map
     robot_base_frame: base_footprint
     odom_topic: /odom
-    # ★ 重規劃頻率不在本檔!是由這個 BT XML 內的 RateController hz="1.0" 決定。
-    #   想降低重規劃頻率(已知地圖建議 0.5Hz 甚至改距離觸發),需複製此 XML 改 hz 後
-    #   把路徑填到這裡。詳見對話說明。
+    # 重規劃頻率由 BT XML 內的 RateController 決定(若已改用 0.5hz 自訂版,路徑填在這)
     default_bt_xml_filename: "navigate_w_replanning_and_recovery.xml"
 
     plugin_lib_names:
@@ -59,7 +57,10 @@ bt_navigator:
 controller_server:
   ros__parameters:
     use_sim_time: False
-    controller_frequency: 10.0          # ★改 20→10:CPU 減半,低速下反應足夠
+    controller_frequency: 10.0
+
+    # 允許 1 秒內的瞬時控制失敗自行恢復,避免 micro-ROS TF 抖動觸發 recovery 停頓
+    failure_tolerance: 1.0
 
     # 低於此閾值的速度視為 0。麥輪要保留 y！不可設 0。
     min_x_velocity_threshold: 0.001
@@ -73,52 +74,51 @@ controller_server:
     progress_checker:
       plugin: "nav2_controller::SimpleProgressChecker"
       required_movement_radius: 0.05
-      # ★改 10→15:整體速度降 1/3 後移動變慢,避免被誤判 stuck 觸發 recovery。
       movement_time_allowance: 15.0
 
     general_goal_checker:
       plugin: "nav2_controller::SimpleGoalChecker"
-      xy_goal_tolerance: 0.05           # 5 cm,精準停靠(依你要求維持)
-      yaw_goal_tolerance: 0.10          # ~5.7°
-      stateful: True                    # xy 達標後只檢查 yaw,防止來回追 xy
+      xy_goal_tolerance: 0.03           # 3 cm,精準停靠
+      yaw_goal_tolerance: 0.05          # ~2.85°
+      stateful: True                    # xy 達標後只檢查 yaw
 
     FollowPath:
       plugin: "nav2_mppi_controller::MPPIController"
       motion_model: "Omni"
 
-      # ★改:model_dt 必須 = 1/controller_frequency = 0.1
-      #   time_steps 32→20:0.1*20 = 2.0s 視野。低速下 2 秒足夠,還省 CPU。
-      time_steps: 20
-      model_dt: 0.1
-      batch_size: 1000                  # ★改 2000→1000:CPU 大戶,低速場景 1000 夠用
+      time_steps: 20                    # 0.1*20 = 2.0s 視野
+      model_dt: 0.1                     # = 1/controller_frequency
+      batch_size: 1000
 
       # --- 取樣標準差 ---
-      # ★改 0.20→依新速度上限等比縮小。std 若比 vmax 還大,大量樣本被截斷、
-      #   輸出抖動,是低速震盪的常見主因。
-      vx_std: 0.05
-      vy_std: 0.05
-      wz_std: 0.15
+      # ★v3:速度×3,std 等比放大維持相同比例(慢速版已驗證此比例不震盪)。
+      #   wz_std 是原地旋轉能力的關鍵:太低會取樣不到純旋轉軌跡,
+      #   機器人就只會用小弧線前後嚕來調頭。官方參考值即為 0.4。
+      vx_std: 0.15
+      vy_std: 0.15
+      wz_std: 0.4
 
-      # --- 速度上限(★改:降到原本 1/3,wz 依你指定 0.45,與 velocity_smoother 對齊)---
-      vx_max:  0.13
-      vx_min: -0.13
-      vy_max:  0.12
-      vy_min: -0.12
-      wz_max:  0.45
+      # --- 速度上限(★v3:×3,與 velocity_smoother 對齊)---
+      vx_max:  0.39
+      vx_min: -0.39
+      vy_max:  0.36
+      vy_min: -0.36
+      wz_max:  1.35
 
-      # --- 加速度上限(★改 0.6→0.15:到達全速約需 0.9s,起步/減速更緩,防暴衝)---
-      ax_max: 0.15
-      ax_min: -0.15
-      ay_max: 0.15
-      ay_min: -0.15
-      az_max: 0.5                       # ★改 1.0→0.5
+      # --- 加速度上限(★v3:×3,與 velocity_smoother 對齊。az 放寬讓旋轉能在
+      #     2 秒視野內轉出足夠角度,旋轉軌跡評分才佔得到便宜)---
+      ax_max: 0.45
+      ax_min: -0.45
+      ay_max: 0.45
+      ay_min: -0.45
+      az_max: 1.5
 
       temperature: 0.3
       gamma: 0.015
 
-      # ★改 0.9→0.4:視野距離變成 0.13*2.0 ≈ 0.26m,prune 留餘裕即可
-      prune_distance: 0.4
-      transform_tolerance: 0.3
+      # ★v3:0.4→1.0。視野距離變成 0.39*2.0 ≈ 0.78m,prune 必須 >= 視野+餘裕
+      prune_distance: 1.0
+      transform_tolerance: 0.5          # 容忍 micro-ROS /odom 的 TF 抖動
       visualize: false
 
       retry_attempt_limit: 3
@@ -151,11 +151,14 @@ controller_server:
         cost_weight: 6.0
         threshold_to_consider: 1.0
 
+      # ★v3:權重 3.0→5.0、範圍 0.40→0.50。
+      #   終點對正車頭全靠這個 critic,權重太低時「小弧線順便轉一點」
+      #   的成本會比純旋轉低,就變成幾十次路邊停車式調頭。
       GoalAngleCritic:
         enabled: true
         cost_power: 1
-        cost_weight: 3.0
-        threshold_to_consider: 0.40
+        cost_weight: 5.0
+        threshold_to_consider: 0.50
 
       # 麥輪沒有「正面」概念,禁用前進偏好,才能自由橫移/斜走。
       PreferForwardCritic:
@@ -180,6 +183,7 @@ controller_server:
         offset_from_furthest: 5
         threshold_to_consider: 1.0
 
+      # 維持關閉:前後嚕只發生在終點段,沿路平移行為不需要車頭跟隨。
       PathAngleCritic:
         enabled: false
         cost_power: 1
@@ -193,7 +197,7 @@ controller_server:
 planner_server:
   ros__parameters:
     use_sim_time: False
-    expected_planner_frequency: 0.5     # ★改 1.0→0.5:僅 warning 門檻,配合降低重規劃頻率
+    expected_planner_frequency: 0.5
 
     planner_plugins: ["GridBased"]
 
@@ -253,27 +257,26 @@ behavior_server:
     robot_base_frame: base_footprint
     transform_tolerance: 0.3
     simulate_ahead_time: 2.0
-    max_rotational_vel: 0.45            # ★改 0.6→0.45:與 wz_max 對齊
-    min_rotational_vel: 0.10            # ★改 0.15→0.10
-    rotational_acc_lim: 0.5             # ★改 1.0→0.5:recovery 旋轉也放緩
+    max_rotational_vel: 1.0             # ★v3:recovery 旋轉跟著提速(不必到 1.35)
+    min_rotational_vel: 0.10
+    rotational_acc_lim: 1.5             # ★v3:與 az_max 對齊
 
 # Local Costmap（滾動視窗）
 local_costmap:
   local_costmap:
     ros__parameters:
       use_sim_time: False
-      update_frequency: 3.0             # ★改 5→3:低速下 3Hz 足夠,省 CPU
-      publish_frequency: 1.0            # ★改 2→1:只影響 RViz 顯示
+      update_frequency: 3.0
+      publish_frequency: 1.0
       global_frame: odom
       robot_base_frame: base_footprint
       rolling_window: true
 
-      # ★改 4x4→3x3:MPPI 視野縮短(~0.26m)+prune 0.4m,3m 視窗綽綽有餘,省 CPU
+      # 3x3m:MPPI 視野 0.78m + prune 1.0m,3m 視窗仍足夠(半徑 1.5m)
       width: 3
       height: 3
       resolution: 0.05
 
-      # 45cm x 45cm 方形車體。前提:base_footprint 在車體幾何中心。
       footprint: "[[-0.225, -0.225], [-0.225, 0.225], [0.225, 0.225], [0.225, -0.225]]"
       footprint_padding: 0.01
 
@@ -291,9 +294,9 @@ local_costmap:
           clearing: True
           marking: True
           data_type: "LaserScan"
-          raytrace_max_range: 2.5       # ★改 3.0→2.5:視窗縮小後不需 raytrace 那麼遠
+          raytrace_max_range: 2.5
           raytrace_min_range: 0.0
-          obstacle_max_range: 2.0       # ★改 2.5→2.0:同上,減少每幀處理的點數
+          obstacle_max_range: 2.0
           obstacle_min_range: 0.0
 
       inflation_layer:
@@ -309,8 +312,8 @@ global_costmap:
   global_costmap:
     ros__parameters:
       use_sim_time: False
-      update_frequency: 0.5             # ★改 1.0→0.5:已知地圖,靜態層為主,0.5Hz 夠
-      publish_frequency: 0.5            # ★改 1.0→0.5
+      update_frequency: 0.5
+      publish_frequency: 0.5
       global_frame: map
       robot_base_frame: base_footprint
 
@@ -368,16 +371,16 @@ waypoint_follower:
 velocity_smoother:
   ros__parameters:
     use_sim_time: False
-    smoothing_frequency: 20.0           # 保持 20Hz:負擔極輕,輸出到底盤更平滑
+    smoothing_frequency: 20.0
     scale_velocities: false
 
     feedback: "OPEN_LOOP"
 
-    # [X, Y, Theta] ★改:與 MPPI 新上限完全對齊。麥輪務必保留 Y!
-    max_velocity: [0.13, 0.12, 0.45]
-    min_velocity: [-0.13, -0.12, -0.45]
-    max_accel: [0.15, 0.15, 0.5]        # ★改:與 MPPI ax/ay/az 對齊,起步緩衝約 0.9s
-    max_decel: [-0.15, -0.15, -0.5]
+    # [X, Y, Theta] ★v3:×3,與 MPPI 新上限完全對齊。麥輪務必保留 Y!
+    max_velocity: [0.39, 0.36, 1.35]
+    min_velocity: [-0.39, -0.36, -1.35]
+    max_accel: [0.45, 0.45, 1.5]
+    max_decel: [-0.45, -0.45, -1.5]
 
     odom_topic: /odom
     odom_duration: 0.1
