@@ -104,7 +104,7 @@ controller_server:
       vx_min: -0.195
       vy_max:  0.18
       vy_min: -0.18
-      wz_max:  0.90
+      wz_max:  1.5
 
       # --- 加速度上限(★保持不變：到達全速約需 1.3s, 起步/減速依然柔和平滑，防暴衝)---
       ax_max: 0.15
@@ -192,7 +192,7 @@ controller_server:
         cost_power: 1
         cost_weight: 3.0
         # 關鍵參數：極力懲罰過大的加速度跳變。數值越大，馬達出力越平滑
-        w_excessive_acceleration: 2.5
+        w_excessive_acceleration: 5
 
 # Planner：Smac 2D（全向,不考慮車頭,適合麥輪）
 planner_server:
