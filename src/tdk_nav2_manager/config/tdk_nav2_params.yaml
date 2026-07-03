@@ -174,7 +174,7 @@ controller_server:
         offset_from_furthest: 5
         threshold_to_consider: 1.0
 
-      # ★ 關閉路徑角度評分 = 解鎖麥輪「車頭不變、整台平移」的能力。
+      # ★ 關閉路徑角度評分 = 解鎖麥輪「車頭不變、整台平移」的能力  e。
       #   若你希望機器人沿路時仍大致面向前進方向（看起來更自然/感測器朝前），
       #   可改 enabled: true 並設 mode: 1（NO_DIRECTIONAL_PREFERENCE）。
       PathAngleCritic:
