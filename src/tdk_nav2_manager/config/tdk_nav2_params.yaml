@@ -134,7 +134,7 @@ controller_server:
 
       critics: [
         "ConstraintCritic", "CostCritic", "GoalCritic",
-        "GoalAngleCritic", "PathAlignCritic", "PathFollowCritic"
+        "GoalAngleCritic", "PathAlignCritic", "PathFollowCritic", "MotionCritic"
       ]
 
       ConstraintCritic:
@@ -173,8 +173,8 @@ controller_server:
       PathAlignCritic:
         enabled: true
         cost_power: 1
-        cost_weight: 4.0
-        max_path_occupancy_ratio: 0.10
+        cost_weight: 2.0
+        max_path_occupancy_ratio: 0.8
         trajectory_point_step: 4
         threshold_to_consider: 0.6
         offset_from_furthest: 8
