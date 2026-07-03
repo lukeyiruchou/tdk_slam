@@ -92,7 +92,7 @@ controller_server:
                                           #   且低速短路徑下取 0.3 避免目標太近時取樣失敗
       rotate_to_heading_angular_vel: 1.5  # ★官方 1.8→1.5:留 25% 餘裕給 wz_max 2.0,
                                           #   避免頂著上限跑導致 smoother 截斷
-      max_angular_accel: 1.5              # ★官方 3.2→2.0:與 az_max 及 velocity_smoother
+      max_angular_accel: 6.0              # ★官方 3.2→2.0:與 az_max 及 velocity_smoother
                                           #   的 max_accel[2]=2.0 對齊,否則 smoother 會拖慢它
       simulate_ahead_time: 1.0            # 旋轉前碰撞預測 1s,搭配 local costmap 3x3 足夠
       rotate_to_goal_heading: true        # ★到達 xy 容差後由 shim 接管做最終轉向,
@@ -116,8 +116,8 @@ controller_server:
       vy_std: 0.10
       wz_std: 0.35
 
-      ax_max: 0.30
-      ax_min: -0.30
+      ax_max: 0.15
+      ax_min: -0.15
       ay_max: 0.25
       ay_min: -0.25
       az_max: 1.6
