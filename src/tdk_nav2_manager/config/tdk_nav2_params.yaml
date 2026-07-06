@@ -378,12 +378,12 @@ velocity_smoother:
     # 實車若 odom 準，可改 CLOSED_LOOP 讓平滑更貼實際。
     feedback: "OPEN_LOOP"
 
-    # [X, Y, Theta] ★改:與 MPPI 新上限完全對齊。麥輪務必保留 Y!
-    max_velocity: [0.80, 0.70, 2.0]
-    min_velocity: [-0.80, -0.70, -2.0]
-    max_accel: [0.6, 0.6, 1.0]        # ★加速度保持不變
-    max_decel: [-0.6, -0.6, -1.0]
-
+# [X, Y, Theta] ★改:與 MPPI 新上限完全對齊。麥輪務必保留 Y!
+    max_velocity: [1.00, 1.00, 0.6]   # X, Y 調高至 1.00，Theta 降至 0.6
+    min_velocity: [-1.00, -1.00, -0.6]
+    max_accel: [0.9, 0.9, 1.0]        # ★ 加速度同步調高至 0.9，確保高速時煞得住
+    max_decel: [-0.9, -0.9, -1.0]      # 減速度與加速度對齊
+    
     odom_topic: /odom
     odom_duration: 0.1
     deadband_velocity: [0.0, 0.0, 0.0]
