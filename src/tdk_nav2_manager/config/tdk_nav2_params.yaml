@@ -87,8 +87,8 @@ controller_server:
       plugin: "nav2_mppi_controller::MPPIController"
       motion_model: "Omni"             # ★ 麥輪/全向輪用 Omni（會輸出 vy）
 
-      time_steps: 32                    # 32 * 0.05 = 1.6 s 預測視野
-      model_dt: 0.05                    # = 1 / controller_frequency，務必對齊
+      time_steps: 32                    # 32 * 0.1 = 3.2 s 預測視野
+      model_dt: 0.1                     # ★改 0.05→0.1:必須 = 1 / controller_frequency(現為10Hz)，否則 MPPI configure() 會丟例外導致 controller_server FATAL 崩潰
       batch_size: 1000
                         # CPU 吃緊可降到 1000（精度略降但仍可用）
 
