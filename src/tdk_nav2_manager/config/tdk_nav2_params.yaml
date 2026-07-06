@@ -89,15 +89,15 @@ controller_server:
                         # CPU 吃緊可降到 1000（精度略降但仍可用）
 
       # --- 取樣標準差：三軸都要能取樣，旋轉不要砍太兇 ---
-      vx_std: 0.20
-      vy_std: 0.20
-      wz_std: 0.20                      # ★ 不要像差動輪那樣壓到 0.05，否則無法修正車頭
+      vx_std: 0.75
+      vy_std: 0.75
+      wz_std: 0.75
 
       # --- 速度上限（與 velocity_smoother 對齊）---
-      vx_max:  0.40
-      vx_min: -0.40
-      vy_max:  0.35                     # 橫移略低於直行（麥輪特性）
-      vy_min: -0.35
+      vx_max:  0.8
+      vx_min: -0.8
+      vy_max:  0.7                    # 橫移略低於直行（麥輪特性）
+      vy_min: -0.7
       wz_max:  0.60
 
       # --- 加速度上限（與 velocity_smoother 對齊）---
@@ -377,13 +377,12 @@ velocity_smoother:
     smoothing_frequency: 20.0
     scale_velocities: false
 
-    # OPEN_LOOP：用上一筆指令估目前速度（模擬常用）。
     # 實車若 odom 準，可改 CLOSED_LOOP 讓平滑更貼實際。
     feedback: "OPEN_LOOP"
 
     # [X, Y, Theta]。麥輪務必保留 Y！
-    max_velocity: [0.40, 0.35, 0.60]
-    min_velocity: [-0.40, -0.35, -0.60]
+    max_velocity: [0.8, 0.7, 0.6]
+    min_velocity: [-0.8, -0.7, -0.6]
     max_accel: [0.6, 0.6, 1.0]
     max_decel: [-0.6, -0.6, -1.0]
 
