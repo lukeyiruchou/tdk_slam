@@ -79,8 +79,8 @@ controller_server:
 
     general_goal_checker:
       plugin: "nav2_controller::SimpleGoalChecker"
-      xy_goal_tolerance: 0.02           # 5 cm,精準停靠(依你要求維持)
-      yaw_goal_tolerance: 0.03          # ~5.7°
+      xy_goal_tolerance: 0.04           # 5 cm,精準停靠(依你要求維持)
+      yaw_goal_tolerance: 0.07          # ~5.7°
       stateful: True                    # xy 達標後只檢查 yaw,防止來回追 xy
 
     FollowPath:
@@ -92,25 +92,25 @@ controller_server:
       batch_size: 1000
                         # CPU 吃緊可降到 1000（精度略降但仍可用）
 
-      # --- 取樣標準差：三軸都要能取樣，旋轉不要砍太兇 ---
-      vx_std: 0.75
-      vy_std: 0.75
-      wz_std: 0.75                      # ★ 不要像差動輪那樣壓到 0.05，否則無法修正車頭
+# --- 取樣標準差：根據 $std \approx v_{max} / 2$ 左右調整，保持靈敏度且不浪費採樣點 ---
+      vx_std: 0.50                      # 原 0.75 -> 調降讓採樣集中在 0 ~ 1.0 的有效區間
+      vy_std: 0.50                      # 與 vx_std 對齊，維持全向橫移的均勻採樣
+      wz_std: 0.60                      # ★ 配合 wz_max: 0.60，保持大數值讓車頭能大幅度修正
 
-      # --- 速度上限（與 velocity_smoother 對齊）---
-      vx_max:  0.80
-      vx_min: -0.80
-      vy_max:  0.70                     # 橫移略低於直行（麥輪特性）
-      vy_min: -0.70
+      # --- 速度上限（已調高至 1.0）---
+      vx_max:  1.00
+      vx_min: -1.00
+      vy_max:  1.00                     # 橫移速度與直行對齊
+      vy_min: -1.00
       wz_max:  0.60
 
-      # --- 加速度上限（與 velocity_smoother 對齊）---
-      ax_max: 0.6
-      ax_min: -0.6
-      ay_max: 0.6
-      ay_min: -0.6
-      az_max: 1.0
-
+      # --- 加速度上限：根據 1.1 ~ 1.2 秒內煞停的物理特性調高 ---
+      ax_max: 0.9                       # 原 0.6 -> 提高到 0.9，確保極速 1.0 可以在 1.1 秒內煞停
+      ax_min: -0.9
+      ay_max: 0.9                       # 麥輪橫移需要足夠的爆發力克服摩擦力
+      ay_min: -0.9
+      az_max: 1.0                       # 旋轉加速度保持 1.0，反應較靈敏
+      
       temperature: 0.3
       gamma: 0.015
 
