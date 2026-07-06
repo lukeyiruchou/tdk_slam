@@ -155,6 +155,7 @@ def generate_launch_description():
         parameters=[{'use_sim_time': use_sim_time}],
         arguments=['-resolution', '0.05'],
         remappings=[('/map', '/carto_map')]
+        # /carto_map here is only for visualization in foxglove and rviz2, the real map it is using is /map from nav_launch.py, which is published by map_server
     )
     # Cartographer localization
     cartographer_node = Node(

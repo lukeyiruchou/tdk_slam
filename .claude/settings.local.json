@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(which colcon *)",
-      "Read(//opt/**)"
+      "Read(//opt/**)",
+      "Bash(find / -maxdepth 3 -iname \"*ros*\" -type d)",
+      "Read(//home/terry/tdk_test/tdk_robot_docker/**)"
     ]
   }
 }
