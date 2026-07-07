@@ -34,8 +34,8 @@ LocalizationManager::LocalizationManager(const rclcpp::NodeOptions & options)
     carto_config_basename_ = this->get_parameter("carto_config_basename").as_string();
 
     // /robot_pose 驗證容差（比賽人工擺放誤差可能到 10cm 以上，放寬到 0.15）
-    this->declare_parameter("tolerance_dist", 0.15);
-    this->declare_parameter("tolerance_yaw", 0.15);
+    this->declare_parameter("tolerance_dist", 0.02);
+    this->declare_parameter("tolerance_yaw", 0.02);
     this->declare_parameter("verify_timeout_sec", 5.0);
     tolerance_dist_ = this->get_parameter("tolerance_dist").as_double();
     tolerance_yaw_ = this->get_parameter("tolerance_yaw").as_double();
