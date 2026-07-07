@@ -1,0 +1,69 @@
+# ============================================================================
+# robot_localization EKF 設定
+#
+# 取代原本的 odom_tf_broadcaster，負責發布 odom -> base_footprint 的 TF，
+# 並輸出融合後的 /odometry/filtered（cartographer 與 Nav2 controller /
+# velocity_smoother 都改吃這個 topic）。
+#
+# 目前只接 STM32 (micro-ROS) 的 /odom（wheel odometry），未來加 IMU 時：
+#   1. 加一段 imu0: /imu 設定
+#   2. odom0_config 建議改成只取速度項 (vx, vy, vyaw)，
+#      角度改由 IMU 提供，避免輪式 odom 角度飄移污染融合結果
+#
+# ⚠ 前置條件（robot_localization 的硬性要求）：
+#   * /odom publisher 必須是 RELIABLE QoS（已確認 firmware 是 reliable）
+#   * /odom header.stamp 必須是有效且與 agent 同步的 epoch time
+#     （firmware 需有 rmw_uros_sync_session）
+# ============================================================================
+ekf_filter_node:
+  ros__parameters:
+    # /odom 約 30Hz，EKF 輸出頻率設一致即可。
+    # 若之後 RotationShim / MPPI 還是覺得 odom 回饋偏慢，可拉到 50.0
+    #（EKF 會用預測 step 內插，輸出頻率可以高於輸入）。
+    frequency: 30.0
+    sensor_timeout: 0.1
+    two_d_mode: true
+
+    # ---- TF ----
+    map_frame: map
+    odom_frame: odom
+    base_link_frame: base_footprint
+    world_frame: odom            # world_frame=odom => 廣播 odom -> base_footprint
+    publish_tf: true
+    transform_time_offset: 0.0
+    transform_timeout: 0.0
+
+    print_diagnostics: true
+    debug: false
+    publish_acceleration: false
+    use_sim_time: false
+
+    # ---- 輸入來源：STM32 wheel odometry ----
+    odom0: /odom
+    # 順序: [x, y, z, roll, pitch, yaw, vx, vy, vz, vroll, vpitch, vyaw, ax, ay, az]
+    # 取 x, y, yaw（絕對位姿）+ vx, vy, vyaw（速度）
+    odom0_config: [true,  true,  false,
+                   false, false, true,
+                   true,  true,  false,
+                   false, false, true,
+                   false, false, false]
+    odom0_differential: false
+    odom0_queue_size: 10
+
+    # ---- Process noise covariance (15x15 對角) ----
+    process_noise_covariance: [0.05, 0.0,  0.0,  0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.05,  0.0,  0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0,  0.0, 0.06,  0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0,  0.0,  0.0, 0.03,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0,  0.0,  0.0,  0.0, 0.03,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0,  0.0,  0.0,  0.0,  0.0, 0.06, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0,  0.0,  0.0,  0.0,  0.0,  0.0, 0.025, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0,  0.0,  0.0,  0.0,  0.0,  0.0, 0.0, 0.025, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0,  0.0,  0.0,  0.0,  0.0,  0.0, 0.0, 0.0, 0.04, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0,  0.0,  0.0,  0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0,  0.0,  0.0,  0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.0,
+                               0.0,  0.0,  0.0,  0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.02, 0.0, 0.0, 0.0,
+                               0.0,  0.0,  0.0,  0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0,
+                               0.0,  0.0,  0.0,  0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.0,
+                               0.0,  0.0,  0.0,  0.0,  0.0,  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.015
+                               ]
