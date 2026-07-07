@@ -15,10 +15,10 @@ if [ -n "$TMUX" ]; then
 else
     # 如果不在 tmux 中，建立一個新的 session 並在第一個面板執行 CMD1
     tmux new-session -d -s $SESSION_NAME "$CMD1"
-    
+
     # 左右切割視窗（-h 代表 horizontal split，在 tmux 中是左右切分）並執行 CMD2
     tmux split-window -h -t $SESSION_NAME "$CMD2"
-    
+
     # 附加（attach）到該 session
     tmux attach-session -t $SESSION_NAME
 fi
