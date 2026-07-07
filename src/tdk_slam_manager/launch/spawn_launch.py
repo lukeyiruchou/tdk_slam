@@ -66,16 +66,16 @@ def generate_launch_description():
     # EKF：取代 odom_tf_broadcaster，發布 odom -> base_footprint TF
     # 與 /odometry/filtered（目前只吃 /odom，之後加 IMU 只改 ekf_config.yaml）
     # ------------------------------------------------------------------
-    ekf_node = Node(
-        package='robot_localization',
-        executable='ekf_node',
-        name='ekf_filter_node',
-        output='screen',
-        parameters=[
-            PathJoinSubstitution([FindPackageShare('tdk_slam_manager'), 'config', 'ekf_config.yaml']),
-            {'use_sim_time': use_sim_time}
-        ]
-    )
+    # ekf_node = Node(
+    #     package='robot_localization',
+    #     executable='ekf_node',
+    #     name='ekf_filter_node',
+    #     output='screen',
+    #     parameters=[
+    #         PathJoinSubstitution([FindPackageShare('tdk_slam_manager'), 'config', 'ekf_config.yaml']),
+    #         {'use_sim_time': use_sim_time}
+    #     ]
+    # )
 
     odom_tf_broadcaster_node = Node(
         package='tdk_slam_manager',
