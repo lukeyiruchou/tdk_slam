@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# 定義要執行的指令
-CMD1="ros2 run micro_ros_agent micro_ros_agent serial --dev /dev/ttyACM0 -v6 --baudrate 1000000"
+# 定義要執行的指令（加入 cd 動作）
+CMD1="cd workspaces/microros_ws && ros2 run micro_ros_agent micro_ros_agent serial --dev /dev/ttyACM0 -v6 --baudrate 1000000"
 CMD2="ros2 launch foxglove_bridge foxglove_bridge_launch.xml port:=8777"
 
 # 定義 tmux session 名稱
@@ -17,10 +17,10 @@ if [ -n "$TMUX" ]; then
     tmux select-pane -t :.+
     tmux send-keys "$CMD2" C-m
 else
-    # 如果不在 tmux 中，建立一個新的 session（預設會停留在 bash 提示字元）
+    # 如果不在 tmux 中，建立一個新的 session
     tmux new-session -d -s $SESSION_NAME
     
-    # 左右切割視窗（此時會有兩個乾淨的 bash 面版）
+    # 左右切割視窗
     tmux split-window -h -t $SESSION_NAME
     
     # 分別向左邊（pane 0）和右邊（pane 1）發送指令
