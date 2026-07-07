@@ -93,15 +93,15 @@ controller_server:
                         # CPU 吃緊可降到 1000（精度略降但仍可用）
 
 # --- 取樣標準差：根據 $std \approx v_{max} / 2$ 左右調整，保持靈敏度且不浪費採樣點 ---
-      vx_std: 0.50
-      vy_std: 0.50
+      vx_std: 0.40
+      vy_std: 0.40
       wz_std: 0.60
 
       # --- 速度上限（已調高至 1.0）---
-      vx_max:  1.00
-      vx_min: -1.00
-      vy_max:  1.00                     # 橫移速度與直行對齊
-      vy_min: -1.00
+      vx_max:  0.8
+      vx_min: -0.8
+      vy_max:  0.8                     # 橫移速度與直行對齊
+      vy_min: -0.8
       wz_max:  0.60
 
       # --- 加速度上限：根據 1.1 ~ 1.2 秒內煞停的物理特性調高 ---
@@ -379,8 +379,8 @@ velocity_smoother:
     feedback: "OPEN_LOOP"
 
 # [X, Y, Theta] ★改:與 MPPI 新上限完全對齊。麥輪務必保留 Y!
-    max_velocity: [1.00, 1.00, 0.6]   # X, Y 調高至 1.00，Theta 降至 0.6
-    min_velocity: [-1.00, -1.00, -0.6]
+    max_velocity: [0.80, 0.80, 0.6]   # X, Y 調高至 0.80，Theta 降至 0.6
+    min_velocity: [-0.80, -0.80, -0.6]
     max_accel: [0.4, 0.3, 0.6]        # ★ 加速度同步調高至 0.9，確保高速時煞得住
     max_decel: [-0.4, -0.3, -0.6]      # 減速度與加速度對齊
 
