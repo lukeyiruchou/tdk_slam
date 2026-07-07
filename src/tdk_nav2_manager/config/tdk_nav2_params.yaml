@@ -4,7 +4,7 @@ bt_navigator:
     use_sim_time: False
     global_frame: map
     robot_base_frame: base_footprint
-    odom_topic: /odometry/filtered
+    odom_topic: /odom
     # ★ 重規劃頻率不在本檔!是由這個 BT XML 內的 RateController hz="1.0" 決定。
     #   想降低重規劃頻率(已知地圖建議 0.5Hz 甚至改距離觸發),需複製此 XML 改 hz 後
     #   把路徑填到這裡。詳見對話說明。
@@ -384,7 +384,7 @@ velocity_smoother:
     max_accel: [0.4, 0.3, 0.6]        # ★ 加速度同步調高至 0.9，確保高速時煞得住
     max_decel: [-0.4, -0.3, -0.6]      # 減速度與加速度對齊
 
-    odom_topic: /odometry/filtered
+    odom_topic: /odom
     odom_duration: 0.1
     deadband_velocity: [0.0, 0.0, 0.0]
     velocity_timeout: 1.0

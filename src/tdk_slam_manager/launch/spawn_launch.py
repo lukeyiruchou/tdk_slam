@@ -77,6 +77,19 @@ def generate_launch_description():
         ]
     )
 
+    odom_tf_broadcaster_node = Node(
+        package='tdk_slam_manager',
+        executable='odom_tf_broadcaster_node',
+        name='odom_tf_broadcaster',
+        output='screen',
+        parameters=[{
+            'odom_topic': '/odom',
+            'odom_frame': 'odom',
+            'base_frame': 'base_footprint',
+            'use_sim_time': use_sim_time
+        }]
+    ) 
+
     # start RPLiDAR S3
     lidar_front = GroupAction([
         PushRosNamespace('front'),
@@ -175,7 +188,7 @@ def generate_launch_description():
             '-configuration_basename', 'cartographer_2d.lua'
         ],
         remappings=[
-            ('odom', '/odometry/filtered')
+            ('odom', '/odom')
         ]
     )
     # Convert Submap to OccupancyGrid — remapped to /carto_map so it doesn't
@@ -205,7 +218,7 @@ def generate_launch_description():
             '-load_state_filename', os.path.join(localization_pkg, 'maps', 'real_map_0.pbstream')
         ],
         remappings=[
-            ('odom', '/odometry/filtered')
+            ('odom', '/odom')
         ]
     )
 
@@ -291,7 +304,8 @@ def generate_launch_description():
 
         world_tf_pub,
         robot_state_publisher,
-        ekf_node,
+        odom_tf_broadcaster_node,
+        # ekf_node,
         lidar_front,
         lidar_rear,
         filter_front,
