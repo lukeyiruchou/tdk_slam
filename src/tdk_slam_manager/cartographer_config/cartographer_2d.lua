@@ -37,10 +37,10 @@ TRAJECTORY_BUILDER_2D.max_range = 12.0
 
 
 -- 大幅增加 LiDAR 掃描特徵與子地圖匹配的權重 (預設通常是 1.0)
-TRAJECTORY_BUILDER_2D.ceres_scan_matcher.occupied_space_weight = 1.0
+TRAJECTORY_BUILDER_2D.ceres_scan_matcher.occupied_space_weight = 40.0
 -- 降低對 Odom 平移與旋轉的信任 (預設通常為 10.0 和 40.0)
-TRAJECTORY_BUILDER_2D.ceres_scan_matcher.translation_weight = 40.0
-TRAJECTORY_BUILDER_2D.ceres_scan_matcher.rotation_weight = 10.0
+TRAJECTORY_BUILDER_2D.ceres_scan_matcher.translation_weight = 20.0
+TRAJECTORY_BUILDER_2D.ceres_scan_matcher.rotation_weight = 5.0
 
 -- 因為上方已開啟 use_online_correlative_scan_matching，此處降低偏離 Odom 的懲罰
 -- 讓系統在暴力搜尋時，更自由地用 LiDAR 找最佳吻合點
