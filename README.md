@@ -172,5 +172,4 @@ ros2 run robot_fsm robot_fsm_main
 
 - ❌ **EKF（robot_localization）停用中**：上次實機測試有問題（`/odometry/filtered` 異常），暫以自寫 `odom_tf_broadcaster` 取代；IMU 融合連帶未接入，`ekf_config.yaml` 保留待修
 - ❌ **slam_toolbox 定位模式未測試**（launch 與 `localization_manager` 的 `/initialpose` 介面已寫好）
-- ❌ AMCL 備援模式未測試
 - ⬜ 比賽場地正式地圖尚未重建（目前為練習場地 `real_map_0`）
