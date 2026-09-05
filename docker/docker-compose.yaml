@@ -20,13 +20,13 @@ services:
       - XAUTHORITY=/root/.Xauthority
       - ROS_WS=/home/tdk/tdk_slam_ws
       - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
-      - ROS_DOMAIN_ID=30
+      - ROS_DOMAIN_ID=67
       - QT_X11_NO_MITSHM=1 # Fix for Qt applications in Docker
     volumes:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
       # Mount X11 server
-      - /d/.Xauthority:/root/.Xauthority
+      - ~/.Xauthority:/root/.Xauthority
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - /dev:/dev
       - ../:/home/tdk/tdk_slam_ws

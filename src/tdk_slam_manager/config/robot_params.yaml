@@ -10,14 +10,14 @@ sensors:
     z: 0.05    
     roll: 0.0
     pitch: 0.0 
-    yaw: 3.1415926   
+    yaw: -1.570796   
   rear_lidar:
     x: -0.20 
     y: -0.20 
     z: 0.05
     roll: 0.0
     pitch: 0.0
-    yaw: 0.0
+    yaw: 1.570796
 wheels:
   radius: 0.05
   width: 0.03 
