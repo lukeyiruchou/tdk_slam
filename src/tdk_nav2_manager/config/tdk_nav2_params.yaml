@@ -161,7 +161,7 @@ controller_server:
         enabled: false
 
       PathAlignCritic:
-        enabled: true
+        enabled: false 
         cost_power: 1
         cost_weight: 1.5
         max_path_occupancy_ratio: 0.10
@@ -314,7 +314,7 @@ global_costmap:
       use_sim_time: False
       update_frequency: 0.5             # ★改 1.0→0.5:已知地圖,靜態層為主,0.5Hz 夠
       publish_frequency: 0.5            # ★改 1.0→0.5
-      global_frame: map
+      global_frame: world
       robot_base_frame: base_footprint
 
       footprint: "[[-0.225, -0.225], [-0.225, 0.225], [0.225, 0.225], [0.225, -0.225]]"

@@ -188,7 +188,7 @@ def generate_launch_description():
             '-configuration_basename', 'cartographer_2d.lua'
         ],
         remappings=[
-            ('odom', '/odom')
+            ('odom', '/odom_filtered')
         ]
     )
     # Convert Submap to OccupancyGrid — remapped to /carto_map so it doesn't
@@ -215,14 +215,14 @@ def generate_launch_description():
         arguments=[
             '-configuration_directory', os.path.join(localization_pkg, 'cartographer_config'),
             '-configuration_basename', 'localization.lua',
-            '-load_state_filename', os.path.join(localization_pkg, 'maps', 'real_map_0.pbstream')
+            '-load_state_filename', os.path.join(localization_pkg, 'maps', 'carto_map_4.pbstream')
         ],
         remappings=[
-            ('odom', '/odom')
+            ('odom', '/odom_filtered')
         ]
     )
 
-    map_yaml_file = os.path.join(localization_pkg, 'maps', 'real_map_0.yaml')
+    map_yaml_file = os.path.join(localization_pkg, 'maps', 'carto_map_4.yaml')
 
     # map_server
     map_server_node = Node(

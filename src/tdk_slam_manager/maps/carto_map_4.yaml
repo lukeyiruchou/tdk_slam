@@ -1,0 +1,6 @@
+image: /home/tdk/tdk_slam_ws/src/tdk_slam_manager/maps/carto_map_4.pgm
+resolution: 0.050000
+origin: [-5.088497, -5.469472, 0.0]
+negate: 0
+occupied_thresh: 0.65
+free_thresh: 0.196
