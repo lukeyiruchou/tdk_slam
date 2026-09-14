@@ -138,23 +138,91 @@ graph TD
 | `cartographer` | **比賽主定位**：pure localization 讀 pbstream | ✅ 實機測試中 |
 | `slam_toolbox` | slam_toolbox 定位 | ⚠ 尚未測試 |
 | `amcl` | AMCL 定位（備援） | ⚠ 尚未測試 |
+## x1 連線與docker啟動
+
+```bash
+# 找ip (192.168.50.78 in DIT)
+#使用X1螢幕進入terminal
+ip a
+# 找到前綴為192.168.xxx.xxx的ip(需在同一wifi下) 
+
+# 使用SSH連線
+ssh ditrobotics@192.168.50.78
+#password:ditrobotics
+
+#docker 啟動
+#SLAM
+cd tdk_slam_ws/docker/
+docker compose up
+#主程式
+cd tdk2_main_2026/docker/
+docker compose up
+
+#進入container(名稱tdk_slam/ros2_tdk)
+docker exec -it <名稱> bash
+```
 
 ## 啟動流程（實機）
 
 ```bash
-# Terminal 1 — 連線到 micro-ROS agent（連 STM32，1M baud）/microros_ws
-cd microros_ws/
-source install/setup.bash
-ros2 run micro_ros_agent micro_ros_agent serial --dev /dev/ttyACM0 -v6 --baudrate 1000000
 
-# Terminal 2 — scan + TF + 定位
+# Terminal 1 — 連線到ros2_tdk 開啟主程式
+cd ros2_ws
+source install/setup.bash
+sudo chmod 666 /dev/ttyUSB*
+ros2 launch fsm_main robot_launch.py microros_port:='/dev/ttyUSB2'
+
+# Terminal 2 — 連線tdk_slam，開scan + TF + 定位
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+sudo chmod 666 /dev/ttyUSB*
 ros2 launch tdk_slam_manager spawn_launch.py localization_mode:=cartographer
 
-# Terminal 3 — Nav2 + map_server
-ros2 launch tdk_nav2_manager nav_launch.py
+# Terminal 3 — 連線tdk_slam，開Nav2 + map_server
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+ros2 launch tdk_nav2_manager nav_launch.py map:=$(ros2 pkg prefix tdk_slam_manager --share)/maps/<地圖名稱>.yaml
 
-# Terminal 4 — 主程式（於 robot_fsm_v2_ws）
-ros2 run robot_fsm robot_fsm_main
+```
+##掃圖
+```bash
+# Terminal 1 — 單開micro_ros(連ros2_tdk)
+cd ros2_ws
+source install/setup.bash
+sudo chmod 666 /dev/ttyUSB*
+ros2 run micro_ros_agent micro_ros_agent serial -b 115200 -D /dev/ttyUSB2
+
+# Terminal 2 — 連線tdk_slam，開lidar
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+sudo chmod 666 /dev/ttyUSB*
+ros2 launch tdk_slam_manager spawn_launch.py localization_mode:=carto_mapping
+
+# Terminal 3 - 開rviz2
+export DISPLAY=:0
+rviz2
+#左下add，type 裡面的TF，topic 裡的/map
+
+# Terminal 4 - 鍵盤開車
+source /opt/ros/humble/setup.bash
+ros2 run teleop_twist_keyboard teleop_twist_keyboard
+
+# 儲存map(連tdk_slam)
+sudo chmod +x save_map.sh
+./save_map.sh carto
+#會存到 ~/tdk_slam_ws/src/tdk_slam_manager/maps/ 名稱會是carto_map_<數字>
+
+#檢查map(不用進docker)
+eog ~/tdk_slam_ws/src/tdk_slam_manager/maps/ 名稱會是carto_map_<數字>.pgm
+
+```
+## 測試檢查可用指令
+```bash
+
+# 查看/odom
+ros2 topic echo /odom --no-arr
+
+
 ```
 
 ---
