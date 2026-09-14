@@ -183,6 +183,8 @@ source /opt/ros/humble/setup.bash
 source install/setup.bash
 ros2 launch tdk_nav2_manager nav_launch.py map:=$(ros2 pkg prefix tdk_slam_manager --share)/maps/<地圖名稱>.yaml
 
+# Terminal 4 — 發送出發指令(Ev_GoToM1,2,3,4f,4b)
+ros2 topic pub --once /fsm/trigger std_msgs/msg/String "{data: 'Ev_GoToM2'}"
 ```
 ##掃圖
 ```bash
