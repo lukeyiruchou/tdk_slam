@@ -50,8 +50,8 @@ RUN groupadd --gid $USER_GID $USERNAME \
     && chmod 0440 /etc/sudoers.d/$USERNAME \
     && rm -rf /var/lib/apt/lists/* 
     
-RUN echo "source /opt/ros/humble/setup.bash" >> /etc/bash.bashrc && \
-    echo "if [ -f ~/tdk_slam_ws/install/setup.bash ]; then source ~/tdk_slam_ws/install/setup.bash; fi" >> /etc/bash.bashrc
+RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc && \
+    echo "if [ -f ~/tdk_slam_ws/install/setup.bash ]; then source ~/tdk_slam_ws/install/setup.bash; fi" >> ~/bash.bashrc
 
 USER $USERNAME
 WORKDIR /home/$USERNAME/tdk_slam_ws
