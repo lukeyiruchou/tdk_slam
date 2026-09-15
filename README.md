@@ -153,7 +153,7 @@ ssh ditrobotics@192.168.50.78
 #docker 啟動
 #SLAM
 cd tdk_slam_ws/docker/
-docker compose up
+docker compose up -d
 #主程式
 cd tdk2_main_2026/docker/
 docker compose up
