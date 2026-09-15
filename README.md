@@ -156,13 +156,13 @@ cd tdk_slam_ws/docker/
 docker compose up -d
 #主程式
 cd tdk2_main_2026/docker/
-docker compose up
+docker compose up -d
 
 #進入container(名稱tdk_slam/ros2_tdk)
 docker exec -it <名稱> bash
 ```
 
-## 啟動流程（實機）
+## 跑機器啟動流程（實機）
 
 ```bash
 
@@ -186,7 +186,7 @@ ros2 launch tdk_nav2_manager nav_launch.py map:=$(ros2 pkg prefix tdk_slam_manag
 # Terminal 4 — 發送出發指令(Ev_GoToM1,2,3,4f,4b)
 ros2 topic pub --once /fsm/trigger std_msgs/msg/String "{data: 'Ev_GoToM2'}"
 ```
-##掃圖
+## 掃圖啟動流程
 ```bash
 # Terminal 1 — 單開micro_ros(連ros2_tdk)
 cd ros2_ws
