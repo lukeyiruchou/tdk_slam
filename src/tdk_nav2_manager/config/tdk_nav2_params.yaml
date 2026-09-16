@@ -2,7 +2,7 @@
 bt_navigator:
   ros__parameters:
     use_sim_time: False
-    global_frame: map
+    global_frame: world
     robot_base_frame: base_footprint
     odom_topic: /odom
     # ★ 重規劃頻率不在本檔!是由這個 BT XML 內的 RateController hz="1.0" 決定。
@@ -79,8 +79,8 @@ controller_server:
 
     general_goal_checker:
       plugin: "nav2_controller::SimpleGoalChecker"
-      xy_goal_tolerance: 0.02           # 5 cm,精準停靠(依你要求維持)
-      yaw_goal_tolerance: 0.03          # ~5.7°
+      xy_goal_tolerance: 0.08           # 5 cm,精準停靠(依你要求維持)
+      yaw_goal_tolerance: 0.10          # ~5.7°
       stateful: True                    # xy 達標後只檢查 yaw,防止來回追 xy
 
     FollowPath:
@@ -125,7 +125,7 @@ controller_server:
 
       critics: [
         "ConstraintCritic", "CostCritic", "GoalCritic",
-        "GoalAngleCritic", "PathAlignCritic", "PathFollowCritic"
+        "GoalAngleCritic", "PathFollowCritic"
       ]
 
       ConstraintCritic:
@@ -147,7 +147,7 @@ controller_server:
       GoalCritic:
         enabled: true
         cost_power: 1
-        cost_weight: 6.0
+        cost_weight: 8.0
         threshold_to_consider: 0.50
 
       GoalAngleCritic:
@@ -172,7 +172,7 @@ controller_server:
       PathFollowCritic:
         enabled: true
         cost_power: 1
-        cost_weight: 5.0
+        cost_weight: 10.0
         offset_from_furthest: 5
         threshold_to_consider: 1.0
 
@@ -395,7 +395,6 @@ lifecycle_manager_navigation:
     use_sim_time: False
     autostart: True
     node_names:
-      - map_server
       - controller_server
       - smoother_server
       - planner_server
