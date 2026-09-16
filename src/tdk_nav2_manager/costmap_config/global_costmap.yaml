@@ -11,7 +11,7 @@ global_costmap:
         static_layer:
           plugin: "nav2_costmap_2d::StaticLayer"
           map_subscribe_transient_local: True
-          map_topic: /map
+          map_topic: /carto_map
         inflation_layer:
           plugin: "nav2_costmap_2d::InflationLayer"
           inflation_radius: 0.8       # [修改] 放大膨脹半徑，讓代價梯度能覆蓋大半個賽道
