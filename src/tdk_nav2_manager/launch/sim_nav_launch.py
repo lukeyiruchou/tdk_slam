@@ -20,7 +20,7 @@ def generate_launch_description():
     params_file = os.path.join(
         tdk_nav2_dir,
         'config',
-        'tdk_nav2_params.yaml'
+        'sim_tdk_nav2_params.yaml'
     )
 
     # 1. Map Server 節點（直接綁定 LaunchConfiguration）

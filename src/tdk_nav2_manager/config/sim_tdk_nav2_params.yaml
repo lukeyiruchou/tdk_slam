@@ -2,7 +2,7 @@
 bt_navigator:
   ros__parameters:
     use_sim_time: False
-    global_frame: world
+    global_frame: map
     robot_base_frame: base_footprint
     odom_topic: /odom
     # ★ 重規劃頻率不在本檔!是由這個 BT XML 內的 RateController hz="1.0" 決定。
@@ -315,7 +315,7 @@ global_costmap:
       use_sim_time: False
       update_frequency: 0.5             # ★改 1.0→0.5:已知地圖,靜態層為主,0.5Hz 夠
       publish_frequency: 0.5            # ★改 1.0→0.5
-      global_frame: world
+      global_frame: map
       robot_base_frame: base_footprint
 
       footprint: "[[-0.225, -0.225], [-0.225, 0.225], [0.225, 0.225], [0.225, -0.225]]"
