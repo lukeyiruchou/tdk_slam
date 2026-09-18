@@ -96,7 +96,7 @@ def generate_launch_description():
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(os.path.join(sllidar_pkg, 'launch', 'rplidar_s3_launch.py')),
             launch_arguments={
-                'serial_port': '/dev/ttyUSB0',
+                'serial_port': '/dev/ttyUSB1',
                 'frame_id': 'laser_front',
                 'inverted': 'false'
             }.items()
@@ -108,7 +108,7 @@ def generate_launch_description():
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(os.path.join(sllidar_pkg, 'launch', 'rplidar_s3_launch.py')),
             launch_arguments={
-                'serial_port': '/dev/ttyUSB1',
+                'serial_port': '/dev/ttyUSB0',
                 'frame_id': 'laser_rear',
                 'inverted': 'false'
             }.items()
@@ -215,14 +215,14 @@ def generate_launch_description():
         arguments=[
             '-configuration_directory', os.path.join(localization_pkg, 'cartographer_config'),
             '-configuration_basename', 'localization.lua',
-            '-load_state_filename', os.path.join(localization_pkg, 'maps', 'carto_map_4.pbstream')
+            '-load_state_filename', os.path.join(localization_pkg, 'maps', 'carto_map_18.yaml')
         ],
         remappings=[
             ('odom', '/odom_filtered')
         ]
     )
 
-    map_yaml_file = os.path.join(localization_pkg, 'maps', 'carto_map_4.yaml')
+    map_yaml_file = os.path.join(localization_pkg, 'maps', 'carto_map_18.yaml')
 
     # map_server
     map_server_node = Node(
